@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #09090b; /* almost black */
+  color: #fafafa;
+}
+
+/* Make cards and inputs dark */
+.bg-white {
+  background-color: #18181b !important;
+}
+
+.bg-zinc-50 {
+  background-color: #09090b !important;
+}
+
+.border-zinc-200,
+.border-zinc-300 {
+  border-color: #27272a !important;
+}
+
+.text-zinc-500,
+.text-zinc-600 {
+  color: #a1a1aa !important;
+}
+
+input, textarea, select {
+  background-color: #27272a !important;
+  border-color: #3f3f46 !important;
+  color: #fafafa !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #71717a !important;
+}

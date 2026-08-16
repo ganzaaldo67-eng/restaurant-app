@@ -1,0 +1,220 @@
+import { useEffect, useState, useRef } from 'react'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
+
+const STATUS_FLOW = ['pending', 'cooking', 'ready', 'served', 'paid']
+
+function isDrinkItem(item) {
+  const category = (item.category || '').toLowerCase()
+  if (category === 'drinks' || category === 'drink') return true
+
+  const name = (item.name || '').toLowerCase()
+  const drinkWords = [
+    'wine', 'beer', 'juice', 'fanta', 'coca', 'water', 'whisky', 'whiskey',
+    'vodka', 'gin', 'champagne', 'hennessy', 'amarula', 'label', 'red bull',
+    'skol', 'mutzig', 'primus', 'heineken', 'guinness', 'drink', 'tuska',
+    'smirnoff', 'jack', 'red label', 'black label', 'savanna', 'desperados',
+    'mirinda', 'novida', 'energy', 'raki', 'siminoff', 'gilbis', 'cousins',
+  ]
+  return drinkWords.some((w) => name.includes(w))
+}
+
+export default function ActiveOrders() {
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const { role } = useAuth()
+  const previousOrderIds = useRef(new Set())
+  const isFirstLoad = useRef(true)
+
+  function playNotificationSound() {
+    try {
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+      audio.volume = 0.7
+      audio.play().catch(() => {})
+    } catch (e) {
+      console.log('Sound error', e)
+    }
+  }
+
+  useEffect(() => {
+    loadOrders()
+
+    const channel = supabase
+      .channel('active-orders-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          loadOrders()
+          if (payload.eventType === 'INSERT') playNotificationSound()
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'order_items' },
+        () => loadOrders()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
+  async function loadOrders() {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`*, order_items (*)`)
+        .neq('status', 'paid')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      const newOrders = data || []
+
+      if (!isFirstLoad.current) {
+        const currentIds = new Set(newOrders.map((o) => o.id))
+        const hasNewOrder = [...currentIds].some((id) => !previousOrderIds.current.has(id))
+        if (hasNewOrder) playNotificationSound()
+      }
+
+      previousOrderIds.current = new Set(newOrders.map((o) => o.id))
+      isFirstLoad.current = false
+      setOrders(newOrders)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function setStatus(orderId, newStatus) {
+    const updates = { status: newStatus, updated_at: new Date().toISOString() }
+    if (newStatus === 'paid') updates.completed_at = new Date().toISOString()
+
+    const { error } = await supabase.from('orders').update(updates).eq('id', orderId)
+    if (error) alert(error.message)
+  }
+
+  async function cancelOrder(orderId) {
+    if (!confirm('Cancel this order?')) return
+    const { error } = await supabase.from('orders').delete().eq('id', orderId)
+    if (error) alert(error.message)
+  }
+
+  const statusColors = {
+    pending: 'bg-amber-900/50 text-amber-300',
+    cooking: 'bg-blue-900/50 text-blue-300',
+    ready: 'bg-green-900/50 text-green-300',
+    served: 'bg-zinc-800 text-zinc-300',
+    paid: 'bg-emerald-900/50 text-emerald-300',
+  }
+
+  if (loading) return <div className="text-zinc-500 p-4">Loading orders...</div>
+
+  if (orders.length === 0) {
+    return (
+      <div className="text-center py-20 text-zinc-500">
+        <p className="text-lg">No active orders</p>
+        <p className="text-sm mt-2">New orders will appear here automatically</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4 text-white">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold">Active Orders ({orders.length})</h2>
+        <span className="text-xs text-green-400 bg-green-900/30 px-3 py-1 rounded-full">Live</span>
+      </div>
+
+      {orders.map((order) => {
+        const allItems = order.order_items || []
+        const visibleItems =
+          role === 'kitchen' ? allItems.filter((item) => !isDrinkItem(item)) : allItems
+        const hiddenDrinksCount =
+          role === 'kitchen' ? allItems.length - visibleItems.length : 0
+
+        return (
+          <div key={order.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <div className="text-lg font-semibold">
+                  Table {order.table_number} — {order.customer_name}
+                  {order.source === 'customer' && (
+                    <span className="ml-2 text-xs bg-green-900/50 text-green-300 px-2 py-0.5 rounded-full">
+                      Customer
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-zinc-500 mt-1">
+                  {new Date(order.created_at).toLocaleString()}
+                </div>
+              </div>
+              <span className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${statusColors[order.status]}`}>
+                {order.status}
+              </span>
+            </div>
+
+            {role === 'kitchen' && hiddenDrinksCount > 0 && (
+              <p className="text-xs text-amber-400 mb-2">
+                + {hiddenDrinksCount} drink item(s) — waiter handles drinks
+              </p>
+            )}
+
+            <ul className="space-y-1 mb-3">
+              {visibleItems.map((item) => (
+                <li key={item.id} className="flex justify-between text-sm text-zinc-400">
+                  <span>
+                    {item.quantity}× {item.name}
+                  </span>
+                  <span>RWF {(item.price * item.quantity).toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex justify-between font-medium border-t border-zinc-800 pt-2 mb-3">
+              <span>Total</span>
+              <span>RWF {Number(order.total).toLocaleString()}</span>
+            </div>
+
+            {order.notes && (
+              <p className="text-xs text-zinc-500 italic mb-3">Note: {order.notes}</p>
+            )}
+
+            <div className="flex flex-wrap gap-1.5">
+              {STATUS_FLOW.map((s) => {
+                const isActive = s === order.status
+                return (
+                  <button
+                    key={s}
+                    onClick={() => setStatus(order.id, s)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
+                      isActive
+                        ? 'bg-white text-black border-white'
+                        : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                )
+              })}
+            </div>
+
+            {(role === 'admin' || role === 'manager' || role === 'waiter') && (
+              <div className="mt-3 flex justify-end">
+                <button
+                  onClick={() => cancelOrder(order.id)}
+                  className="text-xs text-red-400 hover:underline"
+                >
+                  Cancel order
+                </button>
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
