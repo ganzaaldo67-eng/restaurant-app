@@ -199,16 +199,16 @@ export default function CustomerOrder() {
       <div className="min-h-screen flex items-center justify-center bg-zinc-100 p-4">
         <div className="text-center max-w-md bg-white p-8 sm:p-10 rounded-2xl shadow-lg w-full">
           <div className="text-5xl mb-4 text-emerald-600">✓</div>
-          <h1 className="text-2xl font-bold text-zinc-900 mb-2">Order Placed!</h1>
-          <p className="text-zinc-600 mb-2">
+          <h1 className="text-2xl font-extrabold text-black mb-2">Order Placed!</h1>
+          <p className="text-zinc-700 mb-2">
             Your order for Table {tableNumber} has been sent.
           </p>
-          <p className="text-lg font-semibold text-emerald-700 mb-6">
+          <p className="text-lg font-extrabold text-emerald-800 mb-6">
             Total: RWF {orderTotal.toLocaleString()}
           </p>
           <button
             onClick={() => setSuccess(false)}
-            className="px-8 py-3 rounded-lg bg-emerald-700 text-white font-medium hover:bg-emerald-800 w-full sm:w-auto"
+            className="px-8 py-3 rounded-lg bg-emerald-700 text-white font-bold hover:bg-emerald-800 w-full sm:w-auto"
           >
             Place another order
           </button>
@@ -218,7 +218,7 @@ export default function CustomerOrder() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-zinc-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-zinc-100">
       {/* Mobile top bar */}
       <div className="md:hidden bg-green-950 text-white p-4 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2">
@@ -276,17 +276,17 @@ export default function CustomerOrder() {
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200')] bg-cover bg-center opacity-40"></div>
             <div className="relative h-full flex items-end p-4 sm:p-8">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">Order Online</h1>
-                <p className="text-green-100 mt-1 text-sm sm:text-base">Select your table and add items</p>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Order Online</h1>
+                <p className="text-green-50 mt-1 text-sm sm:text-base">Select your table and add items</p>
               </div>
             </div>
           </div>
 
           <div className="p-4 sm:p-6">
-            <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl shadow-sm border-2 border-zinc-300 p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-zinc-700 mb-1">
-                  Table number <span className="text-red-500">*</span>
+                <label className="block text-sm font-bold text-black mb-1">
+                  Table number <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="number"
@@ -294,38 +294,37 @@ export default function CustomerOrder() {
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
                   placeholder="e.g. 5"
-                  className="w-full px-4 py-2.5 rounded-lg border border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-emerald-600 outline-none"
+                  className="w-full px-4 py-2.5 rounded-lg border-2 border-zinc-300 text-black font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-zinc-700 mb-1">
-                  Your name <span className="text-zinc-400 font-normal">(optional)</span>
+                <label className="block text-sm font-bold text-black mb-1">
+                  Your name <span className="text-zinc-500 font-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Optional"
-                  className="w-full px-4 py-2.5 rounded-lg border border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-emerald-600 outline-none"
+                  className="w-full px-4 py-2.5 rounded-lg border-2 border-zinc-300 text-black font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
                 />
               </div>
             </div>
 
-            {/* Menu type buttons */}
             <div className="mb-6">
-              <p className="text-sm font-semibold text-zinc-700 mb-3">Choose menu</p>
+              <p className="text-sm font-bold text-black mb-3">Choose menu</p>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => selectMenuType('restaurant')}
                   className={`p-4 rounded-xl border-2 text-left transition ${
                     menuType === 'restaurant'
                       ? 'border-emerald-700 bg-emerald-50'
-                      : 'border-zinc-200 bg-white hover:border-emerald-400'
+                      : 'border-zinc-300 bg-white hover:border-emerald-500'
                   }`}
                 >
                   <div className="text-2xl mb-1">🍽️</div>
-                  <div className="font-bold text-zinc-900">Restaurant Menu</div>
-                  <div className="text-xs text-zinc-500 mt-1">Meals, salads & drinks</div>
+                  <div className="font-extrabold text-black">Restaurant Menu</div>
+                  <div className="text-xs text-zinc-600 mt-1 font-medium">Meals, salads & drinks</div>
                 </button>
 
                 <button
@@ -333,12 +332,12 @@ export default function CustomerOrder() {
                   className={`p-4 rounded-xl border-2 text-left transition ${
                     menuType === 'bar'
                       ? 'border-emerald-700 bg-emerald-50'
-                      : 'border-zinc-200 bg-white hover:border-emerald-400'
+                      : 'border-zinc-300 bg-white hover:border-emerald-500'
                   }`}
                 >
                   <div className="text-2xl mb-1">🍹</div>
-                  <div className="font-bold text-zinc-900">Bar Menu</div>
-                  <div className="text-xs text-zinc-500 mt-1">Sides, grilled, salads & drinks</div>
+                  <div className="font-extrabold text-black">Bar Menu</div>
+                  <div className="text-xs text-zinc-600 mt-1 font-medium">Sides, grilled, salads & drinks</div>
                 </button>
               </div>
             </div>
@@ -346,24 +345,24 @@ export default function CustomerOrder() {
             {menuType && (
               <>
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <div className="text-sm text-zinc-600">
+                  <div className="text-sm text-zinc-700 font-medium">
                     Viewing:{' '}
-                    <span className="font-bold text-emerald-800">{MENU_TYPES[menuType].label}</span>
+                    <span className="font-extrabold text-emerald-800">{MENU_TYPES[menuType].label}</span>
                   </div>
-                  <button onClick={() => setMenuType(null)} className="text-sm text-zinc-500 underline">
+                  <button onClick={() => setMenuType(null)} className="text-sm text-zinc-600 underline font-medium">
                     Change menu
                   </button>
                 </div>
 
                 <div className="mb-4">
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">🔍</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">🔍</span>
                     <input
                       type="search"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="Search menu..."
-                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-emerald-600 outline-none"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border-2 border-zinc-300 text-black font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
                     />
                   </div>
                 </div>
@@ -373,10 +372,10 @@ export default function CustomerOrder() {
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat)}
-                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-semibold whitespace-nowrap transition ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-bold whitespace-nowrap transition ${
                         activeCategory === cat
                           ? 'bg-emerald-700 text-white'
-                          : 'bg-white border border-zinc-300 text-zinc-700 hover:border-emerald-500'
+                          : 'bg-white border-2 border-zinc-300 text-black hover:border-emerald-600'
                       }`}
                     >
                       {cat}
@@ -385,9 +384,9 @@ export default function CustomerOrder() {
                 </div>
 
                 {loading ? (
-                  <p className="text-center text-zinc-500 py-20">Loading menu...</p>
+                  <p className="text-center text-zinc-600 py-20 font-medium">Loading menu...</p>
                 ) : filtered.length === 0 ? (
-                  <p className="text-center text-zinc-500 py-20">No dishes found in this section</p>
+                  <p className="text-center text-zinc-600 py-20 font-medium">No dishes found in this section</p>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
                     {filtered.map((item) => {
@@ -396,10 +395,10 @@ export default function CustomerOrder() {
                         <div
                           key={item.id}
                           onClick={() => addToCart(item)}
-                          className={`bg-white rounded-xl border overflow-hidden cursor-pointer transition hover:shadow-lg ${
+                          className={`bg-white rounded-xl border-2 overflow-hidden cursor-pointer transition hover:shadow-lg ${
                             inCart
                               ? 'border-emerald-600 ring-2 ring-emerald-100 shadow-md'
-                              : 'border-zinc-200 shadow-sm hover:border-zinc-300'
+                              : 'border-zinc-300 shadow-sm hover:border-zinc-400'
                           }`}
                         >
                           <div className="h-28 sm:h-36 bg-zinc-100 overflow-hidden">
@@ -412,28 +411,28 @@ export default function CustomerOrder() {
                             )}
                           </div>
 
-                          {/* Professional item text */}
-                          <div className="p-3 sm:p-4 bg-white">
-                            <h3 className="font-bold text-zinc-900 text-sm sm:text-[15px] leading-snug tracking-tight">
+                          {/* HIGH CONTRAST item text */}
+                          <div className="p-3 sm:p-4 bg-white border-t border-zinc-200">
+                            <h3 className="font-extrabold text-black text-[15px] sm:text-base leading-snug">
                               {item.name}
                             </h3>
 
                             {item.description && (
-                              <p className="text-xs text-zinc-600 mt-1.5 line-clamp-2 leading-relaxed">
+                              <p className="text-xs text-zinc-700 mt-1.5 line-clamp-2 leading-relaxed font-medium">
                                 {item.description}
                               </p>
                             )}
 
-                            <p className="text-[11px] font-semibold text-emerald-700/90 mt-1.5 uppercase tracking-wide">
+                            <p className="text-[11px] font-extrabold text-emerald-800 mt-2 uppercase tracking-wide">
                               {item.category}
                             </p>
 
                             <div className="mt-3 flex items-center justify-between">
-                              <span className="font-bold text-emerald-800 text-sm sm:text-base">
+                              <span className="font-extrabold text-black text-sm sm:text-base">
                                 RWF {Number(item.price).toLocaleString()}
                               </span>
                               {inCart && (
-                                <span className="bg-emerald-700 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">
+                                <span className="bg-emerald-700 text-white text-xs px-2.5 py-1 rounded-full font-extrabold">
                                   ×{inCart.quantity}
                                 </span>
                               )}
@@ -448,66 +447,66 @@ export default function CustomerOrder() {
             )}
 
             {!menuType && (
-              <p className="text-center text-zinc-400 text-sm mt-4">
+              <p className="text-center text-zinc-600 text-sm mt-4 font-medium">
                 Select Restaurant Menu or Bar Menu to view dishes
               </p>
             )}
 
-            <p className="text-center text-xs text-zinc-400 mt-10">
+            <p className="text-center text-xs text-zinc-500 mt-10 font-medium">
               All prices are in Rwandan Francs (RWF) and include VAT.
             </p>
           </div>
         </main>
 
         {/* Desktop cart */}
-        <aside className="hidden lg:flex w-80 xl:w-96 border-l border-zinc-200 bg-white flex-col sticky top-0 h-screen shrink-0">
-          <div className="p-4 border-b border-zinc-200">
-            <h2 className="text-lg font-bold text-zinc-900">Your Cart</h2>
-            <p className="text-sm text-zinc-500">
+        <aside className="hidden lg:flex w-80 xl:w-96 border-l-2 border-zinc-300 bg-white flex-col sticky top-0 h-screen shrink-0">
+          <div className="p-4 border-b-2 border-zinc-200">
+            <h2 className="text-lg font-extrabold text-black">Your Cart</h2>
+            <p className="text-sm text-zinc-600 font-medium">
               {itemCount} item{itemCount !== 1 ? 's' : ''}
             </p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {cart.length === 0 ? (
-              <p className="text-zinc-400 text-sm text-center py-10">
+              <p className="text-zinc-500 text-sm text-center py-10 font-medium">
                 Cart is empty.<br />Tap dishes to add.
               </p>
             ) : (
               cart.map((c) => (
-                <div key={c.id} className="flex items-start justify-between gap-2 border-b border-zinc-100 pb-3">
+                <div key={c.id} className="flex items-start justify-between gap-2 border-b border-zinc-200 pb-3">
                   <div className="min-w-0">
-                    <div className="font-semibold text-sm text-zinc-900">{c.name}</div>
-                    <div className="text-xs text-zinc-500">
+                    <div className="font-extrabold text-sm text-black">{c.name}</div>
+                    <div className="text-xs text-zinc-600 font-medium">
                       RWF {Number(c.price).toLocaleString()} each
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => updateQty(c.id, -1)} className="w-7 h-7 rounded-full border border-zinc-300 flex items-center justify-center text-sm hover:bg-zinc-50">−</button>
-                    <span className="w-5 text-center text-sm font-semibold text-zinc-900">{c.quantity}</span>
-                    <button onClick={() => updateQty(c.id, 1)} className="w-7 h-7 rounded-full border border-zinc-300 flex items-center justify-center text-sm hover:bg-zinc-50">+</button>
+                    <button onClick={() => updateQty(c.id, -1)} className="w-7 h-7 rounded-full border-2 border-zinc-300 flex items-center justify-center text-sm font-bold text-black hover:bg-zinc-50">−</button>
+                    <span className="w-5 text-center text-sm font-extrabold text-black">{c.quantity}</span>
+                    <button onClick={() => updateQty(c.id, 1)} className="w-7 h-7 rounded-full border-2 border-zinc-300 flex items-center justify-center text-sm font-bold text-black hover:bg-zinc-50">+</button>
                   </div>
                 </div>
               ))
             )}
           </div>
 
-          <div className="p-4 border-t border-zinc-200 bg-white">
+          <div className="p-4 border-t-2 border-zinc-200 bg-white">
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder="Special requests..."
-              className="w-full px-3 py-2 rounded-lg border border-zinc-300 text-sm text-zinc-900 mb-3"
+              className="w-full px-3 py-2 rounded-lg border-2 border-zinc-300 text-sm text-black font-medium mb-3"
             />
-            <div className="flex justify-between font-bold text-lg mb-3 text-zinc-900">
+            <div className="flex justify-between font-extrabold text-lg mb-3 text-black">
               <span>Total</span>
               <span className="text-emerald-800">RWF {total.toLocaleString()}</span>
             </div>
             <button
               onClick={placeOrder}
               disabled={submitting || cart.length === 0}
-              className="w-full py-3 rounded-lg bg-emerald-700 text-white font-semibold hover:bg-emerald-800 disabled:opacity-50"
+              className="w-full py-3 rounded-lg bg-emerald-700 text-white font-extrabold hover:bg-emerald-800 disabled:opacity-50"
             >
               {submitting ? 'Placing Order...' : 'Place Order'}
             </button>
@@ -515,12 +514,11 @@ export default function CustomerOrder() {
         </aside>
       </div>
 
-      {/* Mobile bottom cart */}
       {cart.length > 0 && (
-        <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-zinc-200 p-4 z-20">
+        <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t-2 border-zinc-300 p-4 z-20">
           <button
             onClick={() => setShowCart(true)}
-            className="w-full py-3 rounded-lg bg-emerald-700 text-white font-semibold flex items-center justify-between px-4"
+            className="w-full py-3 rounded-lg bg-emerald-700 text-white font-extrabold flex items-center justify-between px-4"
           >
             <span>View Cart ({itemCount})</span>
             <span>RWF {total.toLocaleString()}</span>
@@ -528,25 +526,24 @@ export default function CustomerOrder() {
         </div>
       )}
 
-      {/* Mobile cart modal */}
       {showCart && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="p-5 border-b border-zinc-200 flex justify-between items-center sticky top-0 bg-white">
-              <h2 className="text-lg font-bold text-zinc-900">Your Cart</h2>
-              <button onClick={() => setShowCart(false)} className="text-2xl text-zinc-400">×</button>
+            <div className="p-5 border-b-2 border-zinc-200 flex justify-between items-center sticky top-0 bg-white">
+              <h2 className="text-lg font-extrabold text-black">Your Cart</h2>
+              <button onClick={() => setShowCart(false)} className="text-2xl text-zinc-500">×</button>
             </div>
             <div className="p-5 space-y-4">
               {cart.map((c) => (
                 <div key={c.id} className="flex items-center justify-between gap-3">
                   <div className="flex-1">
-                    <div className="font-semibold text-zinc-900">{c.name}</div>
-                    <div className="text-sm text-zinc-500">RWF {Number(c.price).toLocaleString()} each</div>
+                    <div className="font-extrabold text-black">{c.name}</div>
+                    <div className="text-sm text-zinc-600 font-medium">RWF {Number(c.price).toLocaleString()} each</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => updateQty(c.id, -1)} className="w-8 h-8 rounded-full border border-zinc-300 flex items-center justify-center">−</button>
-                    <span className="w-6 text-center font-semibold text-zinc-900">{c.quantity}</span>
-                    <button onClick={() => updateQty(c.id, 1)} className="w-8 h-8 rounded-full border border-zinc-300 flex items-center justify-center">+</button>
+                    <button onClick={() => updateQty(c.id, -1)} className="w-8 h-8 rounded-full border-2 border-zinc-300 flex items-center justify-center font-bold text-black">−</button>
+                    <span className="w-6 text-center font-extrabold text-black">{c.quantity}</span>
+                    <button onClick={() => updateQty(c.id, 1)} className="w-8 h-8 rounded-full border-2 border-zinc-300 flex items-center justify-center font-bold text-black">+</button>
                   </div>
                 </div>
               ))}
@@ -559,18 +556,18 @@ export default function CustomerOrder() {
                     onChange={(e) => setNotes(e.target.value)}
                     rows={2}
                     placeholder="Special requests / notes..."
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-300 text-sm text-zinc-900"
+                    className="w-full px-3 py-2 rounded-lg border-2 border-zinc-300 text-sm text-black font-medium"
                   />
                 </div>
-                <div className="p-5 border-t border-zinc-200 sticky bottom-0 bg-white">
-                  <div className="flex justify-between text-lg font-bold mb-4 text-zinc-900">
+                <div className="p-5 border-t-2 border-zinc-200 sticky bottom-0 bg-white">
+                  <div className="flex justify-between text-lg font-extrabold mb-4 text-black">
                     <span>Total</span>
                     <span className="text-emerald-800">RWF {total.toLocaleString()}</span>
                   </div>
                   <button
                     onClick={placeOrder}
                     disabled={submitting}
-                    className="w-full py-3 rounded-lg bg-emerald-700 text-white font-semibold hover:bg-emerald-800 disabled:opacity-50"
+                    className="w-full py-3 rounded-lg bg-emerald-700 text-white font-extrabold hover:bg-emerald-800 disabled:opacity-50"
                   >
                     {submitting ? 'Placing Order...' : 'Place Order'}
                   </button>
