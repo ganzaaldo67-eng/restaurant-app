@@ -13,6 +13,16 @@ const MENU_TYPES = {
   },
 }
 
+// AGATOGO colors
+const C = {
+  deepGreen: '#0B3D2E',
+  cream: '#F8F4EC',
+  creamDark: '#EEE8DC',
+  muted: '#5C6B63',
+  gold: '#E0B12B',
+  border: '#E8E2D6',
+}
+
 export default function CustomerOrder() {
   const [menu, setMenu] = useState([])
   const [cart, setCart] = useState([])
@@ -95,7 +105,7 @@ export default function CustomerOrder() {
 
   function categoryEmoji(category) {
     const c = (category || '').toLowerCase()
-    if (c.includes('drink')) return '🥤'
+    if (c.includes('drink')) return '☕'
     if (c.includes('salad')) return '🥗'
     if (c.includes('side')) return '🍟'
     if (c.includes('grill')) return '🔥'
@@ -196,19 +206,20 @@ export default function CustomerOrder() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-100 p-4">
-        <div className="text-center max-w-md bg-white p-8 sm:p-10 rounded-2xl shadow-lg w-full">
-          <div className="text-5xl mb-4 text-emerald-600">✓</div>
-          <h1 className="text-2xl font-extrabold text-green-950 mb-2">Order Placed!</h1>
-          <p className="text-green-900/70 mb-2">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: C.cream }}>
+        <div className="text-center max-w-md bg-white p-8 sm:p-10 rounded-2xl shadow-lg w-full border" style={{ borderColor: C.border }}>
+          <div className="text-5xl mb-4" style={{ color: C.deepGreen }}>✓</div>
+          <h1 className="text-2xl font-extrabold mb-2" style={{ color: C.deepGreen }}>Order Placed!</h1>
+          <p className="mb-2" style={{ color: C.muted }}>
             Your order for Table {tableNumber} has been sent.
           </p>
-          <p className="text-lg font-extrabold text-emerald-800 mb-6">
+          <p className="text-lg font-extrabold mb-6" style={{ color: C.deepGreen }}>
             Total: RWF {orderTotal.toLocaleString()}
           </p>
           <button
             onClick={() => setSuccess(false)}
-            className="px-8 py-3 rounded-lg bg-emerald-700 text-white font-bold hover:bg-emerald-800 w-full sm:w-auto"
+            className="px-8 py-3 rounded-xl font-bold w-full sm:w-auto"
+            style={{ backgroundColor: C.gold, color: C.deepGreen }}
           >
             Place another order
           </button>
@@ -218,15 +229,27 @@ export default function CustomerOrder() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-zinc-100">
+    <div className="min-h-screen flex flex-col md:flex-row" style={{ backgroundColor: C.cream }}>
       {/* Mobile top bar */}
-      <div className="md:hidden bg-green-950 text-white p-4 flex items-center justify-between sticky top-0 z-30">
+      <div
+        className="md:hidden text-white p-4 flex items-center justify-between sticky top-0 z-30"
+        style={{ backgroundColor: C.deepGreen }}
+      >
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-sm">🌿</div>
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+            style={{ backgroundColor: C.gold, color: C.deepGreen }}
+          >
+            🌿
+          </div>
           <div className="font-bold">LA VERDURE</div>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowCart(true)} className="relative px-3 py-1.5 rounded-lg bg-green-800 text-sm">
+          <button
+            onClick={() => setShowCart(true)}
+            className="relative px-3 py-1.5 rounded-lg text-sm font-bold"
+            style={{ backgroundColor: C.gold, color: C.deepGreen }}
+          >
             🛒 {itemCount > 0 && <span className="ml-1">{itemCount}</span>}
           </button>
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-2xl">
@@ -236,56 +259,77 @@ export default function CustomerOrder() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden bg-green-900 text-white p-4 space-y-2">
+        <div className="md:hidden text-white p-4 space-y-2" style={{ backgroundColor: '#0A3327' }}>
           <div className="font-medium py-2">🛒 Order Online</div>
-          <Link to="/login" className="block py-2 text-green-200" onClick={() => setMobileMenuOpen(false)}>
+          <Link to="/login" className="block py-2" style={{ color: C.gold }} onClick={() => setMobileMenuOpen(false)}>
             👤 Staff Login
           </Link>
         </div>
       )}
 
       {/* Desktop left sidebar */}
-      <aside className="hidden md:flex w-56 xl:w-64 bg-green-950 text-white flex-col shrink-0">
-        <div className="p-5 border-b border-green-900">
+      <aside
+        className="hidden md:flex w-56 xl:w-64 text-white flex-col shrink-0"
+        style={{ backgroundColor: C.deepGreen }}
+      >
+        <div className="p-5 border-b" style={{ borderColor: '#0A3327' }}>
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center text-xl">🌿</div>
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold"
+              style={{ backgroundColor: C.gold, color: C.deepGreen }}
+            >
+              🌿
+            </div>
             <div>
               <div className="font-bold text-lg leading-tight">LA VERDURE</div>
-              <div className="text-xs text-green-300">Vacation Resort</div>
+              <div className="text-xs" style={{ color: C.gold }}>Vacation Resort</div>
             </div>
           </div>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-green-800 font-medium">
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium"
+            style={{ backgroundColor: '#0A3327' }}
+          >
             <span>🛒</span> Order Online
           </div>
-          <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-lg text-green-200 hover:bg-green-900">
+          <Link
+            to="/login"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:opacity-90"
+            style={{ color: C.gold }}
+          >
             <span>👤</span> Staff Login
           </Link>
         </nav>
 
-        <div className="p-4 text-xs text-green-400 border-t border-green-900">
+        <div className="p-4 text-xs border-t" style={{ borderColor: '#0A3327', color: '#7A9A8C' }}>
           © 2025 LA VERDURE<br />Vacation Resort
         </div>
       </aside>
 
       <div className="flex-1 flex min-w-0">
         <main className="flex-1 overflow-y-auto pb-24 lg:pb-0">
-          <div className="relative h-36 sm:h-48 bg-gradient-to-r from-green-900/80 to-green-700/60">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200')] bg-cover bg-center opacity-40"></div>
+          <div className="relative h-36 sm:h-48" style={{ backgroundColor: C.deepGreen }}>
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200')] bg-cover bg-center opacity-30"></div>
             <div className="relative h-full flex items-end p-4 sm:p-8">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Order Online</h1>
-                <p className="text-green-50 mt-1 text-sm sm:text-base">Select your table and add items</p>
+                <p className="mt-1 text-sm sm:text-base" style={{ color: C.gold }}>
+                  Select your table and add items
+                </p>
               </div>
             </div>
           </div>
 
           <div className="p-4 sm:p-6">
-            <div className="bg-white rounded-xl shadow-sm border-2 border-green-200 p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4">
+            {/* Table + name */}
+            <div
+              className="rounded-2xl shadow-sm border p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4"
+              style={{ backgroundColor: '#fff', borderColor: C.border }}
+            >
               <div>
-                <label className="block text-sm font-bold text-green-950 mb-1">
+                <label className="block text-sm font-bold mb-1" style={{ color: C.deepGreen }}>
                   Table number <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -294,50 +338,53 @@ export default function CustomerOrder() {
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
                   placeholder="e.g. 5"
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-green-200 text-green-950 font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl border-2 font-medium outline-none focus:ring-2"
+                  style={{ borderColor: C.border, color: C.deepGreen }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-green-950 mb-1">
-                  Your name <span className="text-green-700/60 font-normal">(optional)</span>
+                <label className="block text-sm font-bold mb-1" style={{ color: C.deepGreen }}>
+                  Your name <span className="font-normal" style={{ color: C.muted }}>(optional)</span>
                 </label>
                 <input
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Optional"
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-green-200 text-green-950 font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl border-2 font-medium outline-none focus:ring-2"
+                  style={{ borderColor: C.border, color: C.deepGreen }}
                 />
               </div>
             </div>
 
+            {/* Menu type */}
             <div className="mb-6">
-              <p className="text-sm font-bold text-green-950 mb-3">Choose menu</p>
+              <p className="text-sm font-bold mb-3" style={{ color: C.deepGreen }}>Choose menu</p>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => selectMenuType('restaurant')}
-                  className={`p-4 rounded-xl border-2 text-left transition ${
-                    menuType === 'restaurant'
-                      ? 'border-emerald-700 bg-emerald-50'
-                      : 'border-green-200 bg-white hover:border-emerald-500'
-                  }`}
+                  className="p-4 rounded-2xl border-2 text-left transition"
+                  style={{
+                    borderColor: menuType === 'restaurant' ? C.gold : C.border,
+                    backgroundColor: menuType === 'restaurant' ? '#FFF8E7' : '#fff',
+                  }}
                 >
                   <div className="text-2xl mb-1">🍽️</div>
-                  <div className="font-extrabold text-green-950">Restaurant Menu</div>
-                  <div className="text-xs text-green-800/70 mt-1 font-medium">Meals, salads & drinks</div>
+                  <div className="font-extrabold" style={{ color: C.deepGreen }}>Restaurant Menu</div>
+                  <div className="text-xs mt-1 font-medium" style={{ color: C.muted }}>Meals, salads & drinks</div>
                 </button>
 
                 <button
                   onClick={() => selectMenuType('bar')}
-                  className={`p-4 rounded-xl border-2 text-left transition ${
-                    menuType === 'bar'
-                      ? 'border-emerald-700 bg-emerald-50'
-                      : 'border-green-200 bg-white hover:border-emerald-500'
-                  }`}
+                  className="p-4 rounded-2xl border-2 text-left transition"
+                  style={{
+                    borderColor: menuType === 'bar' ? C.gold : C.border,
+                    backgroundColor: menuType === 'bar' ? '#FFF8E7' : '#fff',
+                  }}
                 >
                   <div className="text-2xl mb-1">🍹</div>
-                  <div className="font-extrabold text-green-950">Bar Menu</div>
-                  <div className="text-xs text-green-800/70 mt-1 font-medium">Sides, grilled, salads & drinks</div>
+                  <div className="font-extrabold" style={{ color: C.deepGreen }}>Bar Menu</div>
+                  <div className="text-xs mt-1 font-medium" style={{ color: C.muted }}>Sides, grilled, salads & drinks</div>
                 </button>
               </div>
             </div>
@@ -345,24 +392,31 @@ export default function CustomerOrder() {
             {menuType && (
               <>
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <div className="text-sm text-green-900 font-medium">
+                  <div className="text-sm font-medium" style={{ color: C.muted }}>
                     Viewing:{' '}
-                    <span className="font-extrabold text-emerald-800">{MENU_TYPES[menuType].label}</span>
+                    <span className="font-extrabold" style={{ color: C.deepGreen }}>
+                      {MENU_TYPES[menuType].label}
+                    </span>
                   </div>
-                  <button onClick={() => setMenuType(null)} className="text-sm text-green-700 underline font-medium">
+                  <button
+                    onClick={() => setMenuType(null)}
+                    className="text-sm underline font-medium"
+                    style={{ color: C.muted }}
+                  >
                     Change menu
                   </button>
                 </div>
 
                 <div className="mb-4">
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-700/50">🔍</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: C.muted }}>🔍</span>
                     <input
                       type="search"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="Search menu..."
-                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border-2 border-green-200 text-green-950 font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 font-medium outline-none"
+                      style={{ borderColor: C.border, color: C.deepGreen, backgroundColor: '#fff' }}
                     />
                   </div>
                 </div>
@@ -372,11 +426,12 @@ export default function CustomerOrder() {
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat)}
-                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-bold whitespace-nowrap transition ${
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-bold whitespace-nowrap transition border-2"
+                      style={
                         activeCategory === cat
-                          ? 'bg-emerald-700 text-white'
-                          : 'bg-white border-2 border-green-200 text-green-950 hover:border-emerald-600'
-                      }`}
+                          ? { backgroundColor: C.deepGreen, color: C.cream, borderColor: C.deepGreen }
+                          : { backgroundColor: '#fff', color: C.deepGreen, borderColor: C.border }
+                      }
                     >
                       {cat}
                     </button>
@@ -384,9 +439,9 @@ export default function CustomerOrder() {
                 </div>
 
                 {loading ? (
-                  <p className="text-center text-green-800 py-20 font-medium">Loading menu...</p>
+                  <p className="text-center py-20 font-medium" style={{ color: C.muted }}>Loading menu...</p>
                 ) : filtered.length === 0 ? (
-                  <p className="text-center text-green-800 py-20 font-medium">No dishes found in this section</p>
+                  <p className="text-center py-20 font-medium" style={{ color: C.muted }}>No dishes found in this section</p>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
                     {filtered.map((item) => {
@@ -395,44 +450,55 @@ export default function CustomerOrder() {
                         <div
                           key={item.id}
                           onClick={() => addToCart(item)}
-                          className={`bg-white rounded-xl border-2 overflow-hidden cursor-pointer transition hover:shadow-lg ${
-                            inCart
-                              ? 'border-emerald-600 ring-2 ring-emerald-100 shadow-md'
-                              : 'border-green-200 shadow-sm hover:border-green-400'
-                          }`}
+                          className="rounded-2xl overflow-hidden cursor-pointer transition hover:shadow-lg border"
+                          style={{
+                            backgroundColor: C.cream,
+                            borderColor: inCart ? C.gold : C.border,
+                            boxShadow: inCart ? `0 0 0 2px ${C.gold}40` : undefined,
+                          }}
                         >
-                          <div className="h-28 sm:h-36 bg-green-50 overflow-hidden">
+                          <div className="h-28 sm:h-36 overflow-hidden" style={{ backgroundColor: C.creamDark }}>
                             {item.image_url ? (
                               <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl bg-gradient-to-br from-emerald-50 to-amber-50">
+                              <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl">
                                 {categoryEmoji(item.category)}
                               </div>
                             )}
                           </div>
 
-                          {/* Names + prices in green theme */}
-                          <div className="p-3 sm:p-4 bg-white border-t border-green-100">
-                            <h3 className="font-extrabold text-green-950 text-[15px] sm:text-base leading-snug">
+                          <div className="p-3 sm:p-4">
+                            <h3
+                              className="font-extrabold text-[15px] sm:text-base leading-snug"
+                              style={{ color: C.deepGreen }}
+                            >
                               {item.name}
                             </h3>
 
+                            <div className="mt-2">
+                              <span
+                                className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+                                style={{ backgroundColor: C.deepGreen, color: C.cream }}
+                              >
+                                {categoryEmoji(item.category)} {item.category}
+                              </span>
+                            </div>
+
                             {item.description && (
-                              <p className="text-xs text-green-900/70 mt-1.5 line-clamp-2 leading-relaxed font-medium">
+                              <p className="text-xs mt-2 line-clamp-2 leading-relaxed" style={{ color: C.muted }}>
                                 {item.description}
                               </p>
                             )}
 
-                            <p className="text-[11px] font-bold text-emerald-700 mt-2 uppercase tracking-wide">
-                              {item.category}
-                            </p>
-
                             <div className="mt-3 flex items-center justify-between">
-                              <span className="font-extrabold text-emerald-800 text-sm sm:text-base">
+                              <span className="font-extrabold text-sm sm:text-base" style={{ color: C.deepGreen }}>
                                 RWF {Number(item.price).toLocaleString()}
                               </span>
                               {inCart && (
-                                <span className="bg-emerald-700 text-white text-xs px-2.5 py-1 rounded-full font-extrabold">
+                                <span
+                                  className="text-xs px-2.5 py-1 rounded-full font-extrabold"
+                                  style={{ backgroundColor: C.gold, color: C.deepGreen }}
+                                >
                                   ×{inCart.quantity}
                                 </span>
                               )}
@@ -447,78 +513,106 @@ export default function CustomerOrder() {
             )}
 
             {!menuType && (
-              <p className="text-center text-green-800/70 text-sm mt-4 font-medium">
+              <p className="text-center text-sm mt-4 font-medium" style={{ color: C.muted }}>
                 Select Restaurant Menu or Bar Menu to view dishes
               </p>
             )}
 
-            <p className="text-center text-xs text-green-800/50 mt-10 font-medium">
+            <p className="text-center text-xs mt-10 font-medium" style={{ color: C.muted }}>
               All prices are in Rwandan Francs (RWF) and include VAT.
             </p>
           </div>
         </main>
 
-        {/* Desktop cart */}
-        <aside className="hidden lg:flex w-80 xl:w-96 border-l-2 border-green-200 bg-white flex-col sticky top-0 h-screen shrink-0">
-          <div className="p-4 border-b-2 border-green-100">
-            <h2 className="text-lg font-extrabold text-green-950">Your Cart</h2>
-            <p className="text-sm text-green-800/70 font-medium">
+        {/* Desktop cart - deep green */}
+        <aside
+          className="hidden lg:flex w-80 xl:w-96 flex-col sticky top-0 h-screen shrink-0"
+          style={{ backgroundColor: C.deepGreen, color: C.cream }}
+        >
+          <div className="p-4 border-b" style={{ borderColor: '#0A3327' }}>
+            <h2 className="text-lg font-extrabold flex items-center gap-2">
+              <span style={{ color: C.gold }}>🛒</span> Your Cart
+            </h2>
+            <p className="text-sm font-medium" style={{ color: '#7A9A8C' }}>
               {itemCount} item{itemCount !== 1 ? 's' : ''}
             </p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {cart.length === 0 ? (
-              <p className="text-green-800/50 text-sm text-center py-10 font-medium">
-                Cart is empty.<br />Tap dishes to add.
-              </p>
+              <div className="text-center py-12">
+                <div className="text-4xl mb-3" style={{ color: C.gold }}>🛒</div>
+                <p className="font-bold mb-1">Your cart is empty</p>
+                <p className="text-sm" style={{ color: '#7A9A8C' }}>
+                  Tap dishes to add them to your cart.
+                </p>
+              </div>
             ) : (
               cart.map((c) => (
-                <div key={c.id} className="flex items-start justify-between gap-2 border-b border-green-100 pb-3">
+                <div key={c.id} className="flex items-start justify-between gap-2 border-b pb-3" style={{ borderColor: '#0A3327' }}>
                   <div className="min-w-0">
-                    <div className="font-extrabold text-sm text-green-950">{c.name}</div>
-                    <div className="text-xs text-emerald-800 font-semibold">
+                    <div className="font-extrabold text-sm">{c.name}</div>
+                    <div className="text-xs font-semibold" style={{ color: C.gold }}>
                       RWF {Number(c.price).toLocaleString()} each
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => updateQty(c.id, -1)} className="w-7 h-7 rounded-full border-2 border-green-200 flex items-center justify-center text-sm font-bold text-green-950 hover:bg-green-50">−</button>
-                    <span className="w-5 text-center text-sm font-extrabold text-green-950">{c.quantity}</span>
-                    <button onClick={() => updateQty(c.id, 1)} className="w-7 h-7 rounded-full border-2 border-green-200 flex items-center justify-center text-sm font-bold text-green-950 hover:bg-green-50">+</button>
+                    <button
+                      onClick={() => updateQty(c.id, -1)}
+                      className="w-7 h-7 rounded-full border flex items-center justify-center text-sm font-bold"
+                      style={{ borderColor: C.gold, color: C.gold }}
+                    >
+                      −
+                    </button>
+                    <span className="w-5 text-center text-sm font-extrabold">{c.quantity}</span>
+                    <button
+                      onClick={() => updateQty(c.id, 1)}
+                      className="w-7 h-7 rounded-full border flex items-center justify-center text-sm font-bold"
+                      style={{ borderColor: C.gold, color: C.gold }}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               ))
             )}
           </div>
 
-          <div className="p-4 border-t-2 border-green-100 bg-white">
+          <div className="p-4 border-t" style={{ borderColor: '#0A3327' }}>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#7A9A8C' }}>
+              💬 Special requests (optional)
+            </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              placeholder="Special requests..."
-              className="w-full px-3 py-2 rounded-lg border-2 border-green-200 text-sm text-green-950 font-medium mb-3"
+              placeholder="E.g. No onions, extra spicy..."
+              className="w-full px-3 py-2 rounded-xl text-sm font-medium mb-3 outline-none"
+              style={{ backgroundColor: '#0A3327', color: C.cream, border: `1px solid #1A4D3C` }}
             />
-            <div className="flex justify-between font-extrabold text-lg mb-3 text-green-950">
+            <div className="flex justify-between font-extrabold text-lg mb-3">
               <span>Total</span>
-              <span className="text-emerald-800">RWF {total.toLocaleString()}</span>
+              <span style={{ color: C.gold }}>RWF {total.toLocaleString()}</span>
             </div>
             <button
               onClick={placeOrder}
               disabled={submitting || cart.length === 0}
-              className="w-full py-3 rounded-lg bg-emerald-700 text-white font-extrabold hover:bg-emerald-800 disabled:opacity-50"
+              className="w-full py-3 rounded-xl font-extrabold disabled:opacity-50"
+              style={{ backgroundColor: C.gold, color: C.deepGreen }}
             >
-              {submitting ? 'Placing Order...' : 'Place Order'}
+              {submitting ? 'Placing Order...' : '🔒 Place Order'}
             </button>
           </div>
         </aside>
       </div>
 
+      {/* Mobile bottom cart */}
       {cart.length > 0 && (
-        <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t-2 border-green-200 p-4 z-20">
+        <div className="lg:hidden fixed bottom-0 inset-x-0 p-4 z-20" style={{ backgroundColor: C.deepGreen }}>
           <button
             onClick={() => setShowCart(true)}
-            className="w-full py-3 rounded-lg bg-emerald-700 text-white font-extrabold flex items-center justify-between px-4"
+            className="w-full py-3 rounded-xl font-extrabold flex items-center justify-between px-4"
+            style={{ backgroundColor: C.gold, color: C.deepGreen }}
           >
             <span>View Cart ({itemCount})</span>
             <span>RWF {total.toLocaleString()}</span>
@@ -526,26 +620,42 @@ export default function CustomerOrder() {
         </div>
       )}
 
+      {/* Mobile cart modal */}
       {showCart && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="p-5 border-b-2 border-green-100 flex justify-between items-center sticky top-0 bg-white">
-              <h2 className="text-lg font-extrabold text-green-950">Your Cart</h2>
-              <button onClick={() => setShowCart(false)} className="text-2xl text-green-700">×</button>
+          <div
+            className="rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl"
+            style={{ backgroundColor: C.deepGreen, color: C.cream }}
+          >
+            <div className="p-5 border-b flex justify-between items-center sticky top-0" style={{ borderColor: '#0A3327', backgroundColor: C.deepGreen }}>
+              <h2 className="text-lg font-extrabold">Your Cart</h2>
+              <button onClick={() => setShowCart(false)} className="text-2xl" style={{ color: C.gold }}>×</button>
             </div>
             <div className="p-5 space-y-4">
               {cart.map((c) => (
                 <div key={c.id} className="flex items-center justify-between gap-3">
                   <div className="flex-1">
-                    <div className="font-extrabold text-green-950">{c.name}</div>
-                    <div className="text-sm text-emerald-800 font-semibold">
+                    <div className="font-extrabold">{c.name}</div>
+                    <div className="text-sm font-semibold" style={{ color: C.gold }}>
                       RWF {Number(c.price).toLocaleString()} each
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => updateQty(c.id, -1)} className="w-8 h-8 rounded-full border-2 border-green-200 flex items-center justify-center font-bold text-green-950">−</button>
-                    <span className="w-6 text-center font-extrabold text-green-950">{c.quantity}</span>
-                    <button onClick={() => updateQty(c.id, 1)} className="w-8 h-8 rounded-full border-2 border-green-200 flex items-center justify-center font-bold text-green-950">+</button>
+                    <button
+                      onClick={() => updateQty(c.id, -1)}
+                      className="w-8 h-8 rounded-full border flex items-center justify-center font-bold"
+                      style={{ borderColor: C.gold, color: C.gold }}
+                    >
+                      −
+                    </button>
+                    <span className="w-6 text-center font-extrabold">{c.quantity}</span>
+                    <button
+                      onClick={() => updateQty(c.id, 1)}
+                      className="w-8 h-8 rounded-full border flex items-center justify-center font-bold"
+                      style={{ borderColor: C.gold, color: C.gold }}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               ))}
@@ -558,20 +668,22 @@ export default function CustomerOrder() {
                     onChange={(e) => setNotes(e.target.value)}
                     rows={2}
                     placeholder="Special requests / notes..."
-                    className="w-full px-3 py-2 rounded-lg border-2 border-green-200 text-sm text-green-950 font-medium"
+                    className="w-full px-3 py-2 rounded-xl text-sm font-medium outline-none"
+                    style={{ backgroundColor: '#0A3327', color: C.cream }}
                   />
                 </div>
-                <div className="p-5 border-t-2 border-green-100 sticky bottom-0 bg-white">
-                  <div className="flex justify-between text-lg font-extrabold mb-4 text-green-950">
+                <div className="p-5 border-t sticky bottom-0" style={{ borderColor: '#0A3327', backgroundColor: C.deepGreen }}>
+                  <div className="flex justify-between text-lg font-extrabold mb-4">
                     <span>Total</span>
-                    <span className="text-emerald-800">RWF {total.toLocaleString()}</span>
+                    <span style={{ color: C.gold }}>RWF {total.toLocaleString()}</span>
                   </div>
                   <button
                     onClick={placeOrder}
                     disabled={submitting}
-                    className="w-full py-3 rounded-lg bg-emerald-700 text-white font-extrabold hover:bg-emerald-800 disabled:opacity-50"
+                    className="w-full py-3 rounded-xl font-extrabold disabled:opacity-50"
+                    style={{ backgroundColor: C.gold, color: C.deepGreen }}
                   >
-                    {submitting ? 'Placing Order...' : 'Place Order'}
+                    {submitting ? 'Placing Order...' : '🔒 Place Order'}
                   </button>
                 </div>
               </>
