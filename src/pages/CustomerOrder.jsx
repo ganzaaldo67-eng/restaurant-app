@@ -5,22 +5,11 @@ import { supabase } from '../lib/supabase'
 const MENU_TYPES = {
   restaurant: {
     label: 'Restaurant Menu',
-    categories: [
-      'All Items',
-      'Meals',
-      'Salads',
-      'Drinks',
-    ],
+    categories: ['All Items', 'Meals', 'Salads', 'Drinks'],
   },
   bar: {
     label: 'Bar Menu',
-    categories: [
-      'All Items',
-      'Sides',
-      'Grilled',
-      'Salads',
-      'Drinks',
-    ],
+    categories: ['All Items', 'Sides', 'Grilled', 'Salads', 'Drinks'],
   },
 }
 
@@ -31,7 +20,7 @@ export default function CustomerOrder() {
   const [customerName, setCustomerName] = useState('')
   const [notes, setNotes] = useState('')
   const [search, setSearch] = useState('')
-  const [menuType, setMenuType] = useState(null) // null | 'restaurant' | 'bar'
+  const [menuType, setMenuType] = useState(null)
   const [activeCategory, setActiveCategory] = useState('All Items')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -82,17 +71,14 @@ export default function CustomerOrder() {
 
   const total = cart.reduce((sum, c) => sum + Number(c.price) * c.quantity, 0)
   const itemCount = cart.reduce((sum, c) => sum + c.quantity, 0)
-
   const currentCategories = menuType ? MENU_TYPES[menuType].categories : []
 
-  // Items allowed in the selected menu type
   const menuTypeItems = menu.filter((m) => {
     if (!menuType) return false
     const cat = (m.category || '').trim()
     if (menuType === 'restaurant') {
-  return ['Meals', 'Salads', 'Drinks'].includes(cat)
-}
-    // bar
+      return ['Meals', 'Salads', 'Drinks'].includes(cat)
+    }
     return ['Sides', 'Grilled', 'Salads', 'Drinks'].includes(cat)
   })
 
@@ -113,9 +99,7 @@ export default function CustomerOrder() {
     if (c.includes('salad')) return '🥗'
     if (c.includes('side')) return '🍟'
     if (c.includes('grill')) return '🔥'
-    if (c.includes('desert') || c.includes('dessert') || c.includes('high')) return '🍽️'
-    if (c.includes('middle')) return '🍲'
-    if (c.includes('ordinary')) return '🍛'
+    if (c.includes('meal')) return '🍽️'
     return '🍽️'
   }
 
@@ -214,17 +198,17 @@ export default function CustomerOrder() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-100 p-4">
         <div className="text-center max-w-md bg-white p-8 sm:p-10 rounded-2xl shadow-lg w-full">
-          <div className="text-5xl mb-4 text-green-600">✓</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Order Placed!</h1>
-          <p className="text-gray-600 mb-2">
+          <div className="text-5xl mb-4 text-emerald-600">✓</div>
+          <h1 className="text-2xl font-bold text-zinc-900 mb-2">Order Placed!</h1>
+          <p className="text-zinc-600 mb-2">
             Your order for Table {tableNumber} has been sent.
           </p>
-          <p className="text-lg font-semibold text-green-700 mb-6">
+          <p className="text-lg font-semibold text-emerald-700 mb-6">
             Total: RWF {orderTotal.toLocaleString()}
           </p>
           <button
             onClick={() => setSuccess(false)}
-            className="px-8 py-3 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 w-full sm:w-auto"
+            className="px-8 py-3 rounded-lg bg-emerald-700 text-white font-medium hover:bg-emerald-800 w-full sm:w-auto"
           >
             Place another order
           </button>
@@ -234,7 +218,7 @@ export default function CustomerOrder() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-zinc-50">
       {/* Mobile top bar */}
       <div className="md:hidden bg-green-950 text-white p-4 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2">
@@ -286,7 +270,6 @@ export default function CustomerOrder() {
         </div>
       </aside>
 
-      {/* MENU + DESKTOP CART */}
       <div className="flex-1 flex min-w-0">
         <main className="flex-1 overflow-y-auto pb-24 lg:pb-0">
           <div className="relative h-36 sm:h-48 bg-gradient-to-r from-green-900/80 to-green-700/60">
@@ -300,10 +283,9 @@ export default function CustomerOrder() {
           </div>
 
           <div className="p-4 sm:p-6">
-            {/* Table + name */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
+                <label className="block text-sm font-semibold text-zinc-700 mb-1">
                   Table number <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -312,79 +294,76 @@ export default function CustomerOrder() {
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
                   placeholder="e.g. 5"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
+                  className="w-full px-4 py-2.5 rounded-lg border border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-emerald-600 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Your name <span className="text-gray-400">(optional)</span>
+                <label className="block text-sm font-semibold text-zinc-700 mb-1">
+                  Your name <span className="text-zinc-400 font-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Optional"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
+                  className="w-full px-4 py-2.5 rounded-lg border border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-emerald-600 outline-none"
                 />
               </div>
             </div>
 
-            {/* STEP 1: Restaurant Menu / Bar Menu */}
+            {/* Menu type buttons */}
             <div className="mb-6">
-              <p className="text-sm font-medium text-gray-600 mb-3">Choose menu</p>
+              <p className="text-sm font-semibold text-zinc-700 mb-3">Choose menu</p>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => selectMenuType('restaurant')}
                   className={`p-4 rounded-xl border-2 text-left transition ${
                     menuType === 'restaurant'
-                      ? 'border-green-700 bg-green-50'
-                      : 'border-gray-200 bg-white hover:border-green-400'
+                      ? 'border-emerald-700 bg-emerald-50'
+                      : 'border-zinc-200 bg-white hover:border-emerald-400'
                   }`}
                 >
                   <div className="text-2xl mb-1">🍽️</div>
-                  <div className="font-bold text-gray-800">Restaurant Menu</div>
-                  <div className="text-xs text-gray-500 mt-1">Meals, salads & drinks</div>
+                  <div className="font-bold text-zinc-900">Restaurant Menu</div>
+                  <div className="text-xs text-zinc-500 mt-1">Meals, salads & drinks</div>
                 </button>
 
                 <button
                   onClick={() => selectMenuType('bar')}
                   className={`p-4 rounded-xl border-2 text-left transition ${
                     menuType === 'bar'
-                      ? 'border-green-700 bg-green-50'
-                      : 'border-gray-200 bg-white hover:border-green-400'
+                      ? 'border-emerald-700 bg-emerald-50'
+                      : 'border-zinc-200 bg-white hover:border-emerald-400'
                   }`}
                 >
                   <div className="text-2xl mb-1">🍹</div>
-                  <div className="font-bold text-gray-800">Bar Menu</div>
-                  <div className="text-xs text-gray-500 mt-1">Sides, grilled, salads & drinks</div>
+                  <div className="font-bold text-zinc-900">Bar Menu</div>
+                  <div className="text-xs text-zinc-500 mt-1">Sides, grilled, salads & drinks</div>
                 </button>
               </div>
             </div>
 
-            {/* STEP 2: categories + items (only after menu type chosen) */}
             {menuType && (
               <>
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <div className="text-sm text-gray-600">
-                    Viewing: <span className="font-semibold text-green-700">{MENU_TYPES[menuType].label}</span>
+                  <div className="text-sm text-zinc-600">
+                    Viewing:{' '}
+                    <span className="font-bold text-emerald-800">{MENU_TYPES[menuType].label}</span>
                   </div>
-                  <button
-                    onClick={() => setMenuType(null)}
-                    className="text-sm text-gray-500 underline"
-                  >
+                  <button onClick={() => setMenuType(null)} className="text-sm text-zinc-500 underline">
                     Change menu
                   </button>
                 </div>
 
                 <div className="mb-4">
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">🔍</span>
                     <input
                       type="search"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="Search menu..."
-                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-zinc-300 text-zinc-900 focus:ring-2 focus:ring-emerald-600 outline-none"
                     />
                   </div>
                 </div>
@@ -394,10 +373,10 @@ export default function CustomerOrder() {
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat)}
-                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-semibold whitespace-nowrap transition ${
                         activeCategory === cat
-                          ? 'bg-green-700 text-white'
-                          : 'bg-white border border-gray-200 text-gray-600'
+                          ? 'bg-emerald-700 text-white'
+                          : 'bg-white border border-zinc-300 text-zinc-700 hover:border-emerald-500'
                       }`}
                     >
                       {cat}
@@ -406,9 +385,9 @@ export default function CustomerOrder() {
                 </div>
 
                 {loading ? (
-                  <p className="text-center text-gray-500 py-20">Loading menu...</p>
+                  <p className="text-center text-zinc-500 py-20">Loading menu...</p>
                 ) : filtered.length === 0 ? (
-                  <p className="text-center text-gray-500 py-20">No dishes found in this section</p>
+                  <p className="text-center text-zinc-500 py-20">No dishes found in this section</p>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
                     {filtered.map((item) => {
@@ -417,35 +396,44 @@ export default function CustomerOrder() {
                         <div
                           key={item.id}
                           onClick={() => addToCart(item)}
-                          className={`bg-white rounded-xl border overflow-hidden cursor-pointer transition hover:shadow-md ${
-                            inCart ? 'border-green-600 ring-2 ring-green-100' : 'border-gray-100'
+                          className={`bg-white rounded-xl border overflow-hidden cursor-pointer transition hover:shadow-lg ${
+                            inCart
+                              ? 'border-emerald-600 ring-2 ring-emerald-100 shadow-md'
+                              : 'border-zinc-200 shadow-sm hover:border-zinc-300'
                           }`}
                         >
-                          <div className="h-28 sm:h-36 bg-gray-100 overflow-hidden">
+                          <div className="h-28 sm:h-36 bg-zinc-100 overflow-hidden">
                             {item.image_url ? (
                               <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl bg-gradient-to-br from-green-100 to-amber-50">
+                              <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl bg-gradient-to-br from-emerald-50 to-amber-50">
                                 {categoryEmoji(item.category)}
                               </div>
                             )}
                           </div>
-                          <div className="p-3 sm:p-4">
-                            <h3 className="font-semibold text-gray-800 text-sm sm:text-base leading-tight">
+
+                          {/* Professional item text */}
+                          <div className="p-3 sm:p-4 bg-white">
+                            <h3 className="font-bold text-zinc-900 text-sm sm:text-[15px] leading-snug tracking-tight">
                               {item.name}
                             </h3>
+
                             {item.description && (
-                              <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                              <p className="text-xs text-zinc-600 mt-1.5 line-clamp-2 leading-relaxed">
                                 {item.description}
                               </p>
                             )}
-                            <p className="text-xs text-gray-400 mt-1">{item.category}</p>
-                            <div className="mt-2 sm:mt-3 flex items-center justify-between">
-                              <span className="font-bold text-green-700 text-sm sm:text-base">
+
+                            <p className="text-[11px] font-semibold text-emerald-700/90 mt-1.5 uppercase tracking-wide">
+                              {item.category}
+                            </p>
+
+                            <div className="mt-3 flex items-center justify-between">
+                              <span className="font-bold text-emerald-800 text-sm sm:text-base">
                                 RWF {Number(item.price).toLocaleString()}
                               </span>
                               {inCart && (
-                                <span className="bg-green-700 text-white text-xs px-2 py-0.5 rounded-full">
+                                <span className="bg-emerald-700 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">
                                   ×{inCart.quantity}
                                 </span>
                               )}
@@ -460,66 +448,66 @@ export default function CustomerOrder() {
             )}
 
             {!menuType && (
-              <p className="text-center text-gray-400 text-sm mt-4">
+              <p className="text-center text-zinc-400 text-sm mt-4">
                 Select Restaurant Menu or Bar Menu to view dishes
               </p>
             )}
 
-            <p className="text-center text-xs text-gray-400 mt-10">
+            <p className="text-center text-xs text-zinc-400 mt-10">
               All prices are in Rwandan Francs (RWF) and include VAT.
             </p>
           </div>
         </main>
 
-        {/* DESKTOP CART */}
-        <aside className="hidden lg:flex w-80 xl:w-96 border-l border-gray-200 bg-white flex-col sticky top-0 h-screen shrink-0">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-bold text-gray-800">Your Cart</h2>
-            <p className="text-sm text-gray-500">
+        {/* Desktop cart */}
+        <aside className="hidden lg:flex w-80 xl:w-96 border-l border-zinc-200 bg-white flex-col sticky top-0 h-screen shrink-0">
+          <div className="p-4 border-b border-zinc-200">
+            <h2 className="text-lg font-bold text-zinc-900">Your Cart</h2>
+            <p className="text-sm text-zinc-500">
               {itemCount} item{itemCount !== 1 ? 's' : ''}
             </p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {cart.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-10">
+              <p className="text-zinc-400 text-sm text-center py-10">
                 Cart is empty.<br />Tap dishes to add.
               </p>
             ) : (
               cart.map((c) => (
-                <div key={c.id} className="flex items-start justify-between gap-2 border-b border-gray-100 pb-3">
+                <div key={c.id} className="flex items-start justify-between gap-2 border-b border-zinc-100 pb-3">
                   <div className="min-w-0">
-                    <div className="font-medium text-sm text-gray-800">{c.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="font-semibold text-sm text-zinc-900">{c.name}</div>
+                    <div className="text-xs text-zinc-500">
                       RWF {Number(c.price).toLocaleString()} each
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => updateQty(c.id, -1)} className="w-7 h-7 rounded-full border flex items-center justify-center text-sm hover:bg-gray-50">−</button>
-                    <span className="w-5 text-center text-sm font-medium">{c.quantity}</span>
-                    <button onClick={() => updateQty(c.id, 1)} className="w-7 h-7 rounded-full border flex items-center justify-center text-sm hover:bg-gray-50">+</button>
+                    <button onClick={() => updateQty(c.id, -1)} className="w-7 h-7 rounded-full border border-zinc-300 flex items-center justify-center text-sm hover:bg-zinc-50">−</button>
+                    <span className="w-5 text-center text-sm font-semibold text-zinc-900">{c.quantity}</span>
+                    <button onClick={() => updateQty(c.id, 1)} className="w-7 h-7 rounded-full border border-zinc-300 flex items-center justify-center text-sm hover:bg-zinc-50">+</button>
                   </div>
                 </div>
               ))
             )}
           </div>
 
-          <div className="p-4 border-t bg-white">
+          <div className="p-4 border-t border-zinc-200 bg-white">
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder="Special requests..."
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm mb-3"
+              className="w-full px-3 py-2 rounded-lg border border-zinc-300 text-sm text-zinc-900 mb-3"
             />
-            <div className="flex justify-between font-bold text-lg mb-3">
+            <div className="flex justify-between font-bold text-lg mb-3 text-zinc-900">
               <span>Total</span>
-              <span className="text-green-700">RWF {total.toLocaleString()}</span>
+              <span className="text-emerald-800">RWF {total.toLocaleString()}</span>
             </div>
             <button
               onClick={placeOrder}
               disabled={submitting || cart.length === 0}
-              className="w-full py-3 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 disabled:opacity-50"
+              className="w-full py-3 rounded-lg bg-emerald-700 text-white font-semibold hover:bg-emerald-800 disabled:opacity-50"
             >
               {submitting ? 'Placing Order...' : 'Place Order'}
             </button>
@@ -527,12 +515,12 @@ export default function CustomerOrder() {
         </aside>
       </div>
 
-      {/* MOBILE bottom cart */}
+      {/* Mobile bottom cart */}
       {cart.length > 0 && (
-        <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t p-4 z-20">
+        <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-zinc-200 p-4 z-20">
           <button
             onClick={() => setShowCart(true)}
-            className="w-full py-3 rounded-lg bg-green-700 text-white font-medium flex items-center justify-between px-4"
+            className="w-full py-3 rounded-lg bg-emerald-700 text-white font-semibold flex items-center justify-between px-4"
           >
             <span>View Cart ({itemCount})</span>
             <span>RWF {total.toLocaleString()}</span>
@@ -540,25 +528,25 @@ export default function CustomerOrder() {
         </div>
       )}
 
-      {/* MOBILE cart modal */}
+      {/* Mobile cart modal */}
       {showCart && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="p-5 border-b flex justify-between items-center sticky top-0 bg-white">
-              <h2 className="text-lg font-bold">Your Cart</h2>
-              <button onClick={() => setShowCart(false)} className="text-2xl text-gray-400">×</button>
+            <div className="p-5 border-b border-zinc-200 flex justify-between items-center sticky top-0 bg-white">
+              <h2 className="text-lg font-bold text-zinc-900">Your Cart</h2>
+              <button onClick={() => setShowCart(false)} className="text-2xl text-zinc-400">×</button>
             </div>
             <div className="p-5 space-y-4">
               {cart.map((c) => (
                 <div key={c.id} className="flex items-center justify-between gap-3">
                   <div className="flex-1">
-                    <div className="font-medium">{c.name}</div>
-                    <div className="text-sm text-gray-500">RWF {Number(c.price).toLocaleString()} each</div>
+                    <div className="font-semibold text-zinc-900">{c.name}</div>
+                    <div className="text-sm text-zinc-500">RWF {Number(c.price).toLocaleString()} each</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => updateQty(c.id, -1)} className="w-8 h-8 rounded-full border flex items-center justify-center">−</button>
-                    <span className="w-6 text-center font-medium">{c.quantity}</span>
-                    <button onClick={() => updateQty(c.id, 1)} className="w-8 h-8 rounded-full border flex items-center justify-center">+</button>
+                    <button onClick={() => updateQty(c.id, -1)} className="w-8 h-8 rounded-full border border-zinc-300 flex items-center justify-center">−</button>
+                    <span className="w-6 text-center font-semibold text-zinc-900">{c.quantity}</span>
+                    <button onClick={() => updateQty(c.id, 1)} className="w-8 h-8 rounded-full border border-zinc-300 flex items-center justify-center">+</button>
                   </div>
                 </div>
               ))}
@@ -571,18 +559,18 @@ export default function CustomerOrder() {
                     onChange={(e) => setNotes(e.target.value)}
                     rows={2}
                     placeholder="Special requests / notes..."
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-zinc-300 text-sm text-zinc-900"
                   />
                 </div>
-                <div className="p-5 border-t sticky bottom-0 bg-white">
-                  <div className="flex justify-between text-lg font-bold mb-4">
+                <div className="p-5 border-t border-zinc-200 sticky bottom-0 bg-white">
+                  <div className="flex justify-between text-lg font-bold mb-4 text-zinc-900">
                     <span>Total</span>
-                    <span className="text-green-700">RWF {total.toLocaleString()}</span>
+                    <span className="text-emerald-800">RWF {total.toLocaleString()}</span>
                   </div>
                   <button
                     onClick={placeOrder}
                     disabled={submitting}
-                    className="w-full py-3 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 disabled:opacity-50"
+                    className="w-full py-3 rounded-lg bg-emerald-700 text-white font-semibold hover:bg-emerald-800 disabled:opacity-50"
                   >
                     {submitting ? 'Placing Order...' : 'Place Order'}
                   </button>
