@@ -2,7 +2,17 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-const CATEGORIES = ['All Items', 'Rwandan Dishes', 'Main Course', 'Sides', 'Drinks']
+const CATEGORIES = [
+  'All Items',
+  'Starters',
+  'Soups',
+  'Salads',
+  'Main Course',
+  'Sides',
+  'Desserts',
+  'Kids Menu',
+  'Drinks',
+]
 
 export default function CustomerOrder() {
   const [menu, setMenu] = useState([])
