@@ -7,9 +7,7 @@ const MENU_TYPES = {
     label: 'Restaurant Menu',
     categories: [
       'All Items',
-      'High meal with Desert',
-      'Middle meal',
-      'Ordinary meal',
+      'Meals',
       'Salads',
       'Drinks',
     ],
