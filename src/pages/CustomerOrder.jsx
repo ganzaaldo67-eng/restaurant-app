@@ -206,8 +206,8 @@ export default function CustomerOrder() {
         </div>
       )}
 
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 bg-green-950 text-white flex-col shrink-0">
+      {/* Desktop left sidebar */}
+      <aside className="hidden md:flex w-56 xl:w-64 bg-green-950 text-white flex-col shrink-0">
         <div className="p-5 border-b border-green-900">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center text-xl">🌿</div>
@@ -227,154 +227,203 @@ export default function CustomerOrder() {
           </Link>
         </nav>
 
-        <div className="p-4 border-t border-green-900">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span>🛒</span>
-              <span className="text-sm">Your Cart</span>
-            </div>
-            <span className="font-bold">RWF {total.toLocaleString()}</span>
-          </div>
-          <div className="text-xs text-green-300 mb-3">
-            {itemCount} item{itemCount !== 1 ? 's' : ''}
-          </div>
-          <button
-            onClick={() => setShowCart(true)}
-            disabled={cart.length === 0}
-            className="w-full py-2.5 rounded-lg bg-green-600 hover:bg-green-500 font-medium disabled:opacity-40"
-          >
-            View Cart
-          </button>
-        </div>
-
         <div className="p-4 text-xs text-green-400 border-t border-green-900">
           © 2025 LA VERDURE<br />Vacation Resort
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto pb-24 md:pb-0">
-        <div className="relative h-36 sm:h-48 bg-gradient-to-r from-green-900/80 to-green-700/60">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200')] bg-cover bg-center opacity-40"></div>
-          <div className="relative h-full flex items-end p-4 sm:p-8">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">Order Online</h1>
-              <p className="text-green-100 mt-1 text-sm sm:text-base">Select your table and add items</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-6 max-w-6xl mx-auto">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Table number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                min="1"
-                value={tableNumber}
-                onChange={(e) => setTableNumber(e.target.value)}
-                placeholder="e.g. 5"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Your name <span className="text-gray-400">(optional)</span>
-              </label>
-              <input
-                type="text"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Optional"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
-              />
+      {/* MENU + DESKTOP CART */}
+      <div className="flex-1 flex min-w-0">
+        {/* MENU AREA */}
+        <main className="flex-1 overflow-y-auto pb-24 lg:pb-0">
+          <div className="relative h-36 sm:h-48 bg-gradient-to-r from-green-900/80 to-green-700/60">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200')] bg-cover bg-center opacity-40"></div>
+            <div className="relative h-full flex items-end p-4 sm:p-8">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">Order Online</h1>
+                <p className="text-green-100 mt-1 text-sm sm:text-base">Select your table and add items</p>
+              </div>
             </div>
           </div>
 
-          <div className="mb-4">
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search menu..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
-              />
+          <div className="p-4 sm:p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Table number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={tableNumber}
+                  onChange={(e) => setTableNumber(e.target.value)}
+                  placeholder="e.g. 5"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Your name <span className="text-gray-400">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Optional"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-1">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
-                  activeCategory === cat
-                    ? 'bg-green-700 text-white'
-                    : 'bg-white border border-gray-200 text-gray-600'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+            <div className="mb-4">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search menu..."
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
+                />
+              </div>
+            </div>
 
-          {loading ? (
-            <p className="text-center text-gray-500 py-20">Loading menu...</p>
-          ) : filtered.length === 0 ? (
-            <p className="text-center text-gray-500 py-20">No dishes found</p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-              {filtered.map((item) => {
-                const inCart = cart.find((c) => c.id === item.id)
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => addToCart(item)}
-                    className={`bg-white rounded-xl border overflow-hidden cursor-pointer transition hover:shadow-md ${
-                      inCart ? 'border-green-600 ring-2 ring-green-100' : 'border-gray-100'
-                    }`}
-                  >
-                    <div className="h-28 sm:h-40 bg-gray-100 overflow-hidden">
-                      {item.image_url ? (
-                        <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl bg-gradient-to-br from-green-100 to-amber-50">
-                          {item.category === 'Drinks' ? '🥤' : item.category === 'Rwandan Dishes' ? '🍲' : '🍽️'}
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-3 sm:p-4">
-                      <h3 className="font-semibold text-gray-800 text-sm sm:text-base leading-tight">{item.name}</h3>
-                      <p className="text-xs text-gray-500 mt-1 hidden sm:block">{item.category}</p>
-                      <div className="mt-2 sm:mt-3 flex items-center justify-between">
-                        <span className="font-bold text-green-700 text-sm sm:text-base">
-                          RWF {Number(item.price).toLocaleString()}
-                        </span>
-                        {inCart && (
-                          <span className="bg-green-700 text-white text-xs px-2 py-0.5 rounded-full">
-                            ×{inCart.quantity}
-                          </span>
+            <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-1">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
+                    activeCategory === cat
+                      ? 'bg-green-700 text-white'
+                      : 'bg-white border border-gray-200 text-gray-600'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {loading ? (
+              <p className="text-center text-gray-500 py-20">Loading menu...</p>
+            ) : filtered.length === 0 ? (
+              <p className="text-center text-gray-500 py-20">No dishes found</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
+                {filtered.map((item) => {
+                  const inCart = cart.find((c) => c.id === item.id)
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => addToCart(item)}
+                      className={`bg-white rounded-xl border overflow-hidden cursor-pointer transition hover:shadow-md ${
+                        inCart ? 'border-green-600 ring-2 ring-green-100' : 'border-gray-100'
+                      }`}
+                    >
+                      <div className="h-28 sm:h-36 bg-gray-100 overflow-hidden">
+                        {item.image_url ? (
+                          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl bg-gradient-to-br from-green-100 to-amber-50">
+                            {item.category === 'Drinks' ? '🥤' : item.category === 'Rwandan Dishes' ? '🍲' : '🍽️'}
+                          </div>
                         )}
                       </div>
+                      <div className="p-3 sm:p-4">
+                        <h3 className="font-semibold text-gray-800 text-sm sm:text-base leading-tight">{item.name}</h3>
+                        <p className="text-xs text-gray-500 mt-1 hidden sm:block">{item.category}</p>
+                        <div className="mt-2 sm:mt-3 flex items-center justify-between">
+                          <span className="font-bold text-green-700 text-sm sm:text-base">
+                            RWF {Number(item.price).toLocaleString()}
+                          </span>
+                          {inCart && (
+                            <span className="bg-green-700 text-white text-xs px-2 py-0.5 rounded-full">
+                              ×{inCart.quantity}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            <p className="text-center text-xs text-gray-400 mt-10">
+              All prices are in Rwandan Francs (RWF) and include VAT.
+            </p>
+          </div>
+        </main>
+
+        {/* DESKTOP CART - always visible, no scroll needed */}
+        <aside className="hidden lg:flex w-80 xl:w-96 border-l border-gray-200 bg-white flex-col sticky top-0 h-screen shrink-0">
+          <div className="p-4 border-b">
+            <h2 className="text-lg font-bold text-gray-800">Your Cart</h2>
+            <p className="text-sm text-gray-500">
+              {itemCount} item{itemCount !== 1 ? 's' : ''}
+            </p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {cart.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-10">
+                Cart is empty.<br />Tap dishes to add.
+              </p>
+            ) : (
+              cart.map((c) => (
+                <div key={c.id} className="flex items-start justify-between gap-2 border-b border-gray-100 pb-3">
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm text-gray-800">{c.name}</div>
+                    <div className="text-xs text-gray-500">
+                      RWF {Number(c.price).toLocaleString()} each
                     </div>
                   </div>
-                )
-              })}
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => updateQty(c.id, -1)}
+                      className="w-7 h-7 rounded-full border flex items-center justify-center text-sm hover:bg-gray-50"
+                    >
+                      −
+                    </button>
+                    <span className="w-5 text-center text-sm font-medium">{c.quantity}</span>
+                    <button
+                      onClick={() => updateQty(c.id, 1)}
+                      className="w-7 h-7 rounded-full border flex items-center justify-center text-sm hover:bg-gray-50"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="p-4 border-t bg-white">
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              placeholder="Special requests..."
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm mb-3"
+            />
+            <div className="flex justify-between font-bold text-lg mb-3">
+              <span>Total</span>
+              <span className="text-green-700">RWF {total.toLocaleString()}</span>
             </div>
-          )}
+            <button
+              onClick={placeOrder}
+              disabled={submitting || cart.length === 0}
+              className="w-full py-3 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 disabled:opacity-50"
+            >
+              {submitting ? 'Placing Order...' : 'Place Order'}
+            </button>
+          </div>
+        </aside>
+      </div>
 
-          <p className="text-center text-xs text-gray-400 mt-10">
-            All prices are in Rwandan Francs (RWF) and include VAT.
-          </p>
-        </div>
-      </main>
-
+      {/* MOBILE bottom cart bar */}
       {cart.length > 0 && (
-        <div className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t p-4 z-20">
+        <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t p-4 z-20">
           <button
             onClick={() => setShowCart(true)}
             className="w-full py-3 rounded-lg bg-green-700 text-white font-medium flex items-center justify-between px-4"
@@ -385,6 +434,7 @@ export default function CustomerOrder() {
         </div>
       )}
 
+      {/* MOBILE cart modal */}
       {showCart && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
@@ -406,7 +456,7 @@ export default function CustomerOrder() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => updateQty(c.id, -1)} className="w-8 h-8 rounded-full border flex items-center justify-center">−</button>
+                      <button onClick={() => updateQty(c.id, -1)} className="w-8 h-8 rounded-full border flex items-center justify inter">−</button>
                       <span className="w-6 text-center font-medium">{c.quantity}</span>
                       <button onClick={() => updateQty(c.id, 1)} className="w-8 h-8 rounded-full border flex items-center justify-center">+</button>
                     </div>
