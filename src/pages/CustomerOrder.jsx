@@ -90,14 +90,8 @@ export default function CustomerOrder() {
     if (!menuType) return false
     const cat = (m.category || '').trim()
     if (menuType === 'restaurant') {
-      return [
-        'High meal with Desert',
-        'Middle meal',
-        'Ordinary meal',
-        'Salads',
-        'Drinks',
-      ].includes(cat)
-    }
+  return ['Meals', 'Salads', 'Drinks'].includes(cat)
+}
     // bar
     return ['Sides', 'Grilled', 'Salads', 'Drinks'].includes(cat)
   })
