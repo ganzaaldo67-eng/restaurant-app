@@ -8,6 +8,7 @@ import MenuManagement from './pages/MenuManagement'
 import TakeOrder from './pages/TakeOrder'
 import ActiveOrders from './pages/ActiveOrders'
 import OrderHistory from './pages/OrderHistory'
+import Stock from './pages/Stock'
 
 function ProtectedRoute({ children, roles }) {
   const { user, profile, loading } = useAuth()
@@ -45,11 +46,22 @@ export default function App() {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="menu" element={
-          <ProtectedRoute roles={['admin', 'manager']}>
-            <MenuManagement />
-          </ProtectedRoute>
-        } />
+        <Route
+          path="menu"
+          element={
+            <ProtectedRoute roles={['admin', 'manager']}>
+              <MenuManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="stock"
+          element={
+            <ProtectedRoute roles={['admin', 'manager']}>
+              <Stock />
+            </ProtectedRoute>
+          }
+        />
         <Route path="take-order" element={<TakeOrder />} />
         <Route path="active" element={<ActiveOrders />} />
         <Route path="history" element={<OrderHistory />} />

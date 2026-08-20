@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 const navItems = [
   { to: '/staff', label: 'Dashboard', end: true, icon: '📊' },
   { to: '/staff/menu', label: 'Menu', roles: ['admin', 'manager'], icon: '🍽️' },
+  { to: '/staff/stock', label: 'Stock', roles: ['admin', 'manager'], icon: '📦' },
   { to: '/staff/take-order', label: 'Take Order', icon: '📝' },
   { to: '/staff/active', label: 'Active Orders', icon: '🔥' },
   { to: '/staff/history', label: 'History', icon: '📜' },

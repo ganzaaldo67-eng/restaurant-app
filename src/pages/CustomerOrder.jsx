@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { validateStock, reduceStock } from '../lib/stock'
 
 const MENU_TYPES = {
   restaurant: {
@@ -13,7 +14,6 @@ const MENU_TYPES = {
   },
 }
 
-// AGATOGO colors
 const C = {
   deepGreen: '#0B3D2E',
   cream: '#F8F4EC',
@@ -60,8 +60,15 @@ export default function CustomerOrder() {
   }
 
   function addToCart(item) {
+    if (item.track_stock && (item.stock_qty ?? 0) <= 0) return
+
     setCart((prev) => {
       const existing = prev.find((c) => c.id === item.id)
+      const currentQty = existing ? existing.quantity : 0
+      if (item.track_stock && currentQty + 1 > (item.stock_qty ?? 0)) {
+        alert(`Only ${item.stock_qty} left of ${item.name}`)
+        return prev
+      }
       if (existing) {
         return prev.map((c) =>
           c.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
@@ -74,7 +81,15 @@ export default function CustomerOrder() {
   function updateQty(id, delta) {
     setCart((prev) =>
       prev
-        .map((c) => (c.id === id ? { ...c, quantity: c.quantity + delta } : c))
+        .map((c) => {
+          if (c.id !== id) return c
+          const nextQty = c.quantity + delta
+          if (delta > 0 && c.track_stock && nextQty > (c.stock_qty ?? 0)) {
+            alert(`Only ${c.stock_qty} left of ${c.name}`)
+            return c
+          }
+          return { ...c, quantity: nextQty }
+        })
         .filter((c) => c.quantity > 0)
     )
   }
@@ -132,6 +147,14 @@ export default function CustomerOrder() {
 
     setSubmitting(true)
     try {
+      // Check stock before placing
+      const stockCheck = await validateStock(cart)
+      if (!stockCheck.ok) {
+        alert(stockCheck.message)
+        setSubmitting(false)
+        return
+      }
+
       const { data: existingOrders, error: findError } = await supabase
         .from('orders')
         .select('id, total, notes')
@@ -192,10 +215,14 @@ export default function CustomerOrder() {
       const { error: itemsError } = await supabase.from('order_items').insert(items)
       if (itemsError) throw itemsError
 
+      // Reduce stock after successful order
+      await reduceStock(cart)
+
       setOrderTotal(newTotal)
       setSuccess(true)
       setCart([])
       setNotes('')
+      loadMenu() // refresh stock numbers
     } catch (err) {
       alert('Failed to place order: ' + err.message)
     } finally {
@@ -230,7 +257,6 @@ export default function CustomerOrder() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row" style={{ backgroundColor: C.cream }}>
-      {/* Mobile top bar */}
       <div
         className="md:hidden text-white p-4 flex items-center justify-between sticky top-0 z-30"
         style={{ backgroundColor: C.deepGreen }}
@@ -267,7 +293,6 @@ export default function CustomerOrder() {
         </div>
       )}
 
-      {/* Desktop left sidebar */}
       <aside
         className="hidden md:flex w-56 xl:w-64 text-white flex-col shrink-0"
         style={{ backgroundColor: C.deepGreen }}
@@ -323,7 +348,6 @@ export default function CustomerOrder() {
           </div>
 
           <div className="p-4 sm:p-6">
-            {/* Table + name */}
             <div
               className="rounded-2xl shadow-sm border p-4 sm:p-5 mb-6 grid sm:grid-cols-2 gap-4"
               style={{ backgroundColor: '#fff', borderColor: C.border }}
@@ -338,7 +362,7 @@ export default function CustomerOrder() {
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
                   placeholder="e.g. 5"
-                  className="w-full px-4 py-2.5 rounded-xl border-2 font-medium outline-none focus:ring-2"
+                  className="w-full px-4 py-2.5 rounded-xl border-2 font-medium outline-none"
                   style={{ borderColor: C.border, color: C.deepGreen }}
                 />
               </div>
@@ -351,13 +375,12 @@ export default function CustomerOrder() {
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Optional"
-                  className="w-full px-4 py-2.5 rounded-xl border-2 font-medium outline-none focus:ring-2"
+                  className="w-full px-4 py-2.5 rounded-xl border-2 font-medium outline-none"
                   style={{ borderColor: C.border, color: C.deepGreen }}
                 />
               </div>
             </div>
 
-            {/* Menu type */}
             <div className="mb-6">
               <p className="text-sm font-bold mb-3" style={{ color: C.deepGreen }}>Choose menu</p>
               <div className="grid grid-cols-2 gap-3">
@@ -446,15 +469,25 @@ export default function CustomerOrder() {
                   <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
                     {filtered.map((item) => {
                       const inCart = cart.find((c) => c.id === item.id)
+                      const outOfStock = item.track_stock && (item.stock_qty ?? 0) <= 0
+                      const lowStock =
+                        item.track_stock &&
+                        (item.stock_qty ?? 0) > 0 &&
+                        (item.stock_qty ?? 0) <= (item.low_stock_threshold ?? 5)
+
                       return (
                         <div
                           key={item.id}
-                          onClick={() => addToCart(item)}
-                          className="rounded-2xl overflow-hidden cursor-pointer transition hover:shadow-lg border"
+                          onClick={() => {
+                            if (!outOfStock) addToCart(item)
+                          }}
+                          className="rounded-2xl overflow-hidden transition border"
                           style={{
                             backgroundColor: C.cream,
-                            borderColor: inCart ? C.gold : C.border,
-                            boxShadow: inCart ? `0 0 0 2px ${C.gold}40` : undefined,
+                            borderColor: inCart && !outOfStock ? C.gold : C.border,
+                            boxShadow: inCart && !outOfStock ? `0 0 0 2px ${C.gold}40` : undefined,
+                            opacity: outOfStock ? 0.55 : 1,
+                            cursor: outOfStock ? 'not-allowed' : 'pointer',
                           }}
                         >
                           <div className="h-28 sm:h-36 overflow-hidden" style={{ backgroundColor: C.creamDark }}>
@@ -490,18 +523,25 @@ export default function CustomerOrder() {
                               </p>
                             )}
 
-                            <div className="mt-3 flex items-center justify-between">
+                            <div className="mt-3 flex items-center justify-between gap-2">
                               <span className="font-extrabold text-sm sm:text-base" style={{ color: C.deepGreen }}>
                                 RWF {Number(item.price).toLocaleString()}
                               </span>
-                              {inCart && (
+
+                              {outOfStock ? (
+                                <span className="text-xs font-extrabold text-red-700">Out of stock</span>
+                              ) : lowStock ? (
+                                <span className="text-xs font-bold text-amber-700">
+                                  Only {item.stock_qty} left
+                                </span>
+                              ) : inCart ? (
                                 <span
                                   className="text-xs px-2.5 py-1 rounded-full font-extrabold"
                                   style={{ backgroundColor: C.gold, color: C.deepGreen }}
                                 >
                                   ×{inCart.quantity}
                                 </span>
-                              )}
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -524,7 +564,6 @@ export default function CustomerOrder() {
           </div>
         </main>
 
-        {/* Desktop cart - deep green */}
         <aside
           className="hidden lg:flex w-80 xl:w-96 flex-col sticky top-0 h-screen shrink-0"
           style={{ backgroundColor: C.deepGreen, color: C.cream }}
@@ -606,7 +645,6 @@ export default function CustomerOrder() {
         </aside>
       </div>
 
-      {/* Mobile bottom cart */}
       {cart.length > 0 && (
         <div className="lg:hidden fixed bottom-0 inset-x-0 p-4 z-20" style={{ backgroundColor: C.deepGreen }}>
           <button
@@ -620,7 +658,6 @@ export default function CustomerOrder() {
         </div>
       )}
 
-      {/* Mobile cart modal */}
       {showCart && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div

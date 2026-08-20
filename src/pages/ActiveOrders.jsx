@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { restoreStockFromOrderItems } from '../lib/stock'
 
 const FOOD_FLOW = ['pending', 'cooking', 'ready', 'served']
 const DRINKS_FLOW = ['pending', 'ready', 'served']
@@ -125,7 +126,17 @@ export default function ActiveOrders() {
   }
 
   async function cancelOrder(orderId) {
-    if (!confirm('Cancel this order?')) return
+    if (!confirm('Cancel this order? Stock for tracked drinks will be put back.')) return
+
+    const order = orders.find((o) => o.id === orderId)
+
+    // Put stock back first (from items we already loaded)
+    try {
+      await restoreStockFromOrderItems(order?.order_items || [])
+    } catch (e) {
+      console.error('Stock restore error', e)
+    }
+
     const { error } = await supabase.from('orders').delete().eq('id', orderId)
     if (error) alert(error.message)
   }
@@ -166,7 +177,6 @@ export default function ActiveOrders() {
         const foodStatus = order.food_status || 'pending'
         const drinksStatus = order.drinks_status || 'pending'
 
-        // What this role mainly sees in the list
         const visibleItems =
           role === 'kitchen' ? foodItems : role === 'waiter' ? allItems : allItems
 
@@ -191,7 +201,6 @@ export default function ActiveOrders() {
               </span>
             </div>
 
-            {/* Items */}
             <ul className="space-y-1 mb-3">
               {visibleItems.map((item) => (
                 <li key={item.id} className="flex justify-between text-sm text-zinc-400">
@@ -223,7 +232,6 @@ export default function ActiveOrders() {
               <p className="text-xs text-zinc-500 italic mb-3">Note: {order.notes}</p>
             )}
 
-            {/* FOOD progress - kitchen / admin / manager */}
             {hasFood && (role === 'kitchen' || role === 'admin' || role === 'manager' || role === 'waiter') && (
               <div className="mb-3">
                 <div className="text-xs text-orange-300 font-medium mb-1.5">
@@ -252,7 +260,6 @@ export default function ActiveOrders() {
               </div>
             )}
 
-            {/* DRINKS progress - waiter / admin / manager */}
             {hasDrinks && (role === 'waiter' || role === 'admin' || role === 'manager' || role === 'kitchen') && (
               <div className="mb-3">
                 <div className="text-xs text-sky-300 font-medium mb-1.5">
@@ -281,7 +288,6 @@ export default function ActiveOrders() {
               </div>
             )}
 
-            {/* Main order status (including Paid) */}
             <div className="mb-1">
               <div className="text-xs text-zinc-400 font-medium mb-1.5">Order status</div>
               <div className="flex flex-wrap gap-1.5">
