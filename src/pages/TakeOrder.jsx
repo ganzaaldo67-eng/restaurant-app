@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
 export default function TakeOrder() {
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [menu, setMenu] = useState([])
   const [cart, setCart] = useState([])
-  const [table, setTable] = useState('')
+  const [table, setTable] = useState(searchParams.get('table') || '')
   const [customer, setCustomer] = useState('')
   const [notes, setNotes] = useState('')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [openOrder, setOpenOrder] = useState(null) // existing unpaid order for this table
 
   useEffect(() => {
     supabase
@@ -23,6 +26,35 @@ export default function TakeOrder() {
         setLoading(false)
       })
   }, [])
+
+  // When table number changes, check for open order
+  useEffect(() => {
+    const tableNum = parseInt(table)
+    if (!tableNum || tableNum < 1) {
+      setOpenOrder(null)
+      return
+    }
+
+    let cancelled = false
+    async function checkOpenOrder() {
+      const { data } = await supabase
+        .from('orders')
+        .select('id, total, status, customer_name, notes, order_items(name, quantity)')
+        .eq('table_number', tableNum)
+        .neq('status', 'paid')
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (!cancelled) {
+        setOpenOrder(data && data.length > 0 ? data[0] : null)
+        if (data && data[0]?.customer_name && !customer) {
+          setCustomer(data[0].customer_name)
+        }
+      }
+    }
+    checkOpenOrder()
+    return () => { cancelled = true }
+  }, [table])
 
   function addToCart(item) {
     setCart((prev) => {
@@ -76,6 +108,7 @@ export default function TakeOrder() {
       let newTotal = total
 
       if (existingOrders && existingOrders.length > 0) {
+        // ADD to existing open order
         orderId = existingOrders[0].id
         newTotal = Number(existingOrders[0].total) + total
 
@@ -94,6 +127,7 @@ export default function TakeOrder() {
 
         if (updateError) throw updateError
       } else {
+        // Create new order
         const { data: order, error } = await supabase
           .from('orders')
           .insert({
@@ -124,10 +158,18 @@ export default function TakeOrder() {
       if (itemsError) throw itemsError
 
       setCart([])
-      setTable('')
-      setCustomer('')
       setNotes('')
-      alert(`Order saved for table ${tableNum}`)
+      alert(
+        existingOrders?.length
+          ? `Items added to Table ${tableNum}'s existing order`
+          : `New order created for Table ${tableNum}`
+      )
+      // refresh open order info
+      setOpenOrder((prev) =>
+        prev
+          ? { ...prev, total: newTotal }
+          : prev
+      )
     } catch (err) {
       alert(err.message)
     } finally {
@@ -157,6 +199,29 @@ export default function TakeOrder() {
           />
         </div>
       </div>
+
+      {/* Banner: existing open order */}
+      {openOrder && (
+        <div className="rounded-xl border border-amber-600/50 bg-amber-950/40 p-4">
+          <div className="font-semibold text-amber-300">
+            Table {table} already has an open order
+          </div>
+          <div className="text-sm text-amber-200/80 mt-1">
+            Status: <span className="capitalize font-medium">{openOrder.status}</span>
+            {' · '}
+            Current total: RWF {Number(openOrder.total).toLocaleString()}
+          </div>
+          {openOrder.order_items?.length > 0 && (
+            <div className="text-xs text-amber-200/70 mt-2">
+              Existing items:{' '}
+              {openOrder.order_items.map((i) => `${i.quantity}× ${i.name}`).join(', ')}
+            </div>
+          )}
+          <p className="text-sm text-amber-100 mt-2 font-medium">
+            New items you add will be combined into this same order.
+          </p>
+        </div>
+      )}
 
       <input
         type="search"
@@ -193,7 +258,9 @@ export default function TakeOrder() {
       {cart.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="font-medium">Current order</h3>
+            <h3 className="font-medium">
+              {openOrder ? 'Items to add' : 'New order'}
+            </h3>
             <span className="text-lg font-semibold">RWF {total.toLocaleString()}</span>
           </div>
           <div className="space-y-2 mb-3">
@@ -211,7 +278,7 @@ export default function TakeOrder() {
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Order notes..."
+            placeholder="Extra notes for these items..."
             rows={2}
             className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-sm mb-3 text-white"
           />
@@ -224,7 +291,11 @@ export default function TakeOrder() {
               disabled={submitting}
               className="px-4 py-2 rounded-lg bg-white text-black text-sm font-medium disabled:opacity-50"
             >
-              {submitting ? 'Placing...' : 'Place order'}
+              {submitting
+                ? 'Saving...'
+                : openOrder
+                  ? 'Add to existing order'
+                  : 'Place order'}
             </button>
           </div>
         </div>

@@ -1,8 +1,11 @@
 import { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
-const STATUS_FLOW = ['pending', 'cooking', 'ready', 'served', 'paid']
+const FOOD_FLOW = ['pending', 'cooking', 'ready', 'served']
+const DRINKS_FLOW = ['pending', 'ready', 'served']
+const MAIN_FLOW = ['pending', 'cooking', 'ready', 'served', 'paid']
 
 function isDrinkItem(item) {
   const category = (item.category || '').toLowerCase()
@@ -15,6 +18,7 @@ function isDrinkItem(item) {
     'skol', 'mutzig', 'primus', 'heineken', 'guinness', 'drink', 'tuska',
     'smirnoff', 'jack', 'red label', 'black label', 'savanna', 'desperados',
     'mirinda', 'novida', 'energy', 'raki', 'siminoff', 'gilbis', 'cousins',
+    'tea', 'coffee', 'leite', 'leffe', 'marte', 'inyange', 'nile', 'amazi',
   ]
   return drinkWords.some((w) => name.includes(w))
 }
@@ -23,6 +27,7 @@ export default function ActiveOrders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const { role } = useAuth()
+  const navigate = useNavigate()
   const previousOrderIds = useRef(new Set())
   const isFirstLoad = useRef(true)
 
@@ -89,11 +94,33 @@ export default function ActiveOrders() {
     }
   }
 
-  async function setStatus(orderId, newStatus) {
+  async function setMainStatus(orderId, newStatus) {
     const updates = { status: newStatus, updated_at: new Date().toISOString() }
     if (newStatus === 'paid') updates.completed_at = new Date().toISOString()
 
     const { error } = await supabase.from('orders').update(updates).eq('id', orderId)
+    if (error) alert(error.message)
+  }
+
+  async function setFoodStatus(orderId, newStatus) {
+    const { error } = await supabase
+      .from('orders')
+      .update({
+        food_status: newStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', orderId)
+    if (error) alert(error.message)
+  }
+
+  async function setDrinksStatus(orderId, newStatus) {
+    const { error } = await supabase
+      .from('orders')
+      .update({
+        drinks_status: newStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', orderId)
     if (error) alert(error.message)
   }
 
@@ -103,12 +130,12 @@ export default function ActiveOrders() {
     if (error) alert(error.message)
   }
 
-  const statusColors = {
-    pending: 'bg-amber-900/50 text-amber-300',
-    cooking: 'bg-blue-900/50 text-blue-300',
-    ready: 'bg-green-900/50 text-green-300',
-    served: 'bg-zinc-800 text-zinc-300',
-    paid: 'bg-emerald-900/50 text-emerald-300',
+  const pill = {
+    pending: 'bg-amber-900/50 text-amber-300 border-amber-700',
+    cooking: 'bg-blue-900/50 text-blue-300 border-blue-700',
+    ready: 'bg-green-900/50 text-green-300 border-green-700',
+    served: 'bg-zinc-700 text-zinc-200 border-zinc-600',
+    paid: 'bg-emerald-900/50 text-emerald-300 border-emerald-700',
   }
 
   if (loading) return <div className="text-zinc-500 p-4">Loading orders...</div>
@@ -131,10 +158,17 @@ export default function ActiveOrders() {
 
       {orders.map((order) => {
         const allItems = order.order_items || []
+        const foodItems = allItems.filter((item) => !isDrinkItem(item))
+        const drinkItems = allItems.filter((item) => isDrinkItem(item))
+        const hasFood = foodItems.length > 0
+        const hasDrinks = drinkItems.length > 0
+
+        const foodStatus = order.food_status || 'pending'
+        const drinksStatus = order.drinks_status || 'pending'
+
+        // What this role mainly sees in the list
         const visibleItems =
-          role === 'kitchen' ? allItems.filter((item) => !isDrinkItem(item)) : allItems
-        const hiddenDrinksCount =
-          role === 'kitchen' ? allItems.length - visibleItems.length : 0
+          role === 'kitchen' ? foodItems : role === 'waiter' ? allItems : allItems
 
         return (
           <div key={order.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 sm:p-5">
@@ -152,27 +186,33 @@ export default function ActiveOrders() {
                   {new Date(order.created_at).toLocaleString()}
                 </div>
               </div>
-              <span className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${statusColors[order.status]}`}>
+              <span className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize border ${pill[order.status] || pill.pending}`}>
                 {order.status}
               </span>
             </div>
 
-            {role === 'kitchen' && hiddenDrinksCount > 0 && (
-              <p className="text-xs text-amber-400 mb-2">
-                + {hiddenDrinksCount} drink item(s) — waiter handles drinks
-              </p>
-            )}
-
+            {/* Items */}
             <ul className="space-y-1 mb-3">
               {visibleItems.map((item) => (
                 <li key={item.id} className="flex justify-between text-sm text-zinc-400">
                   <span>
                     {item.quantity}× {item.name}
+                    {isDrinkItem(item) ? (
+                      <span className="ml-2 text-[10px] text-sky-400">drink</span>
+                    ) : (
+                      <span className="ml-2 text-[10px] text-orange-400">food</span>
+                    )}
                   </span>
                   <span>RWF {(item.price * item.quantity).toLocaleString()}</span>
                 </li>
               ))}
             </ul>
+
+            {role === 'kitchen' && hasDrinks && (
+              <p className="text-xs text-amber-400 mb-2">
+                + {drinkItems.length} drink item(s) — waiter handles drinks
+              </p>
+            )}
 
             <div className="flex justify-between font-medium border-t border-zinc-800 pt-2 mb-3">
               <span>Total</span>
@@ -183,27 +223,95 @@ export default function ActiveOrders() {
               <p className="text-xs text-zinc-500 italic mb-3">Note: {order.notes}</p>
             )}
 
-            <div className="flex flex-wrap gap-1.5">
-              {STATUS_FLOW.map((s) => {
-                const isActive = s === order.status
-                return (
-                  <button
-                    key={s}
-                    onClick={() => setStatus(order.id, s)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                      isActive
-                        ? 'bg-white text-black border-white'
-                        : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
-                    }`}
-                  >
-                    {s}
-                  </button>
-                )
-              })}
+            {/* FOOD progress - kitchen / admin / manager */}
+            {hasFood && (role === 'kitchen' || role === 'admin' || role === 'manager' || role === 'waiter') && (
+              <div className="mb-3">
+                <div className="text-xs text-orange-300 font-medium mb-1.5">
+                  🍽️ Food status: <span className="capitalize">{foodStatus}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {FOOD_FLOW.map((s) => {
+                    const isActive = s === foodStatus
+                    const canClick = role === 'kitchen' || role === 'admin' || role === 'manager'
+                    return (
+                      <button
+                        key={s}
+                        disabled={!canClick}
+                        onClick={() => canClick && setFoodStatus(order.id, s)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition capitalize ${
+                          isActive
+                            ? 'bg-orange-500 text-black border-orange-400'
+                            : 'border-zinc-700 text-zinc-400 hover:border-orange-500 disabled:opacity-40'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* DRINKS progress - waiter / admin / manager */}
+            {hasDrinks && (role === 'waiter' || role === 'admin' || role === 'manager' || role === 'kitchen') && (
+              <div className="mb-3">
+                <div className="text-xs text-sky-300 font-medium mb-1.5">
+                  🥤 Drinks status: <span className="capitalize">{drinksStatus}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {DRINKS_FLOW.map((s) => {
+                    const isActive = s === drinksStatus
+                    const canClick = role === 'waiter' || role === 'admin' || role === 'manager'
+                    return (
+                      <button
+                        key={s}
+                        disabled={!canClick}
+                        onClick={() => canClick && setDrinksStatus(order.id, s)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition capitalize ${
+                          isActive
+                            ? 'bg-sky-500 text-black border-sky-400'
+                            : 'border-zinc-700 text-zinc-400 hover:border-sky-500 disabled:opacity-40'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Main order status (including Paid) */}
+            <div className="mb-1">
+              <div className="text-xs text-zinc-400 font-medium mb-1.5">Order status</div>
+              <div className="flex flex-wrap gap-1.5">
+                {MAIN_FLOW.map((s) => {
+                  const isActive = s === order.status
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => setMainStatus(order.id, s)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition capitalize ${
+                        isActive
+                          ? 'bg-white text-black border-white'
+                          : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             {(role === 'admin' || role === 'manager' || role === 'waiter') && (
-              <div className="mt-3 flex justify-end">
+              <div className="mt-3 flex justify-end gap-4">
+                <button
+                  onClick={() => navigate(`/staff/take-order?table=${order.table_number}`)}
+                  className="text-xs text-emerald-400 hover:underline"
+                >
+                  + Add items
+                </button>
                 <button
                   onClick={() => cancelOrder(order.id)}
                   className="text-xs text-red-400 hover:underline"
