@@ -129,16 +129,26 @@ export default function ActiveOrders() {
     if (!confirm('Cancel this order? Stock for tracked drinks will be put back.')) return
 
     const order = orders.find((o) => o.id === orderId)
+    const items = order?.order_items || []
 
-    // Put stock back first (from items we already loaded)
-    try {
-      await restoreStockFromOrderItems(order?.order_items || [])
-    } catch (e) {
-      console.error('Stock restore error', e)
+    // Restore stock first
+    const result = await restoreStockFromOrderItems(items)
+    if (!result?.ok) {
+      alert('Could not restore stock: ' + (result?.message || 'Unknown error'))
+      return
     }
 
     const { error } = await supabase.from('orders').delete().eq('id', orderId)
-    if (error) alert(error.message)
+    if (error) {
+      alert(error.message)
+      return
+    }
+
+    if ((result.restored || 0) > 0) {
+      alert(`Order cancelled. Restored stock for ${result.restored} item(s).`)
+    } else {
+      alert('Order cancelled. No tracked stock items were found to restore.')
+    }
   }
 
   const pill = {
