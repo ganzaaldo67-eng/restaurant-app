@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import StaffLayout from './pages/StaffLayout'
 import CustomerOrder from './pages/CustomerOrder'
 import Dashboard from './pages/Dashboard'
@@ -9,6 +10,7 @@ import TakeOrder from './pages/TakeOrder'
 import ActiveOrders from './pages/ActiveOrders'
 import OrderHistory from './pages/OrderHistory'
 import Stock from './pages/Stock'
+import Team from './pages/Team'
 
 function ProtectedRoute({ children, roles }) {
   const { user, profile, loading } = useAuth()
@@ -23,6 +25,11 @@ function ProtectedRoute({ children, roles }) {
 
   if (!user) return <Navigate to="/login" replace />
 
+  // Block accounts waiting for approval
+  if (profile && (profile.status !== 'active' || profile.role === 'pending')) {
+    return <Navigate to="/login" replace />
+  }
+
   if (roles && profile && !roles.includes(profile.role)) {
     return <Navigate to="/staff" replace />
   }
@@ -36,6 +43,7 @@ export default function App() {
       <Route path="/order" element={<CustomerOrder />} />
       <Route path="/order/:table" element={<CustomerOrder />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       <Route
         path="/staff"
@@ -59,6 +67,14 @@ export default function App() {
           element={
             <ProtectedRoute roles={['admin', 'manager']}>
               <Stock />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="team"
+          element={
+            <ProtectedRoute roles={['admin', 'manager']}>
+              <Team />
             </ProtectedRoute>
           }
         />

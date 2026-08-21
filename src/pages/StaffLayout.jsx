@@ -6,6 +6,7 @@ const navItems = [
   { to: '/staff', label: 'Dashboard', end: true, icon: '📊' },
   { to: '/staff/menu', label: 'Menu', roles: ['admin', 'manager'], icon: '🍽️' },
   { to: '/staff/stock', label: 'Stock', roles: ['admin', 'manager'], icon: '📦' },
+  { to: '/staff/team', label: 'Team', roles: ['admin', 'manager'], icon: '👥' },
   { to: '/staff/take-order', label: 'Take Order', icon: '📝' },
   { to: '/staff/active', label: 'Active Orders', icon: '🔥' },
   { to: '/staff/history', label: 'History', icon: '📜' },
@@ -45,7 +46,6 @@ export default function StaffLayout() {
         </button>
       </div>
 
-      {/* Overlay when sidebar is open on mobile */}
       {sidebarOpen && (
         <div
           className="md:hidden fixed inset-0 bg-black/60 z-40"
@@ -54,7 +54,6 @@ export default function StaffLayout() {
       )}
 
       <div className="flex">
-        {/* Sidebar */}
         <aside
           className={`
             fixed md:static inset-y-0 left-0 z-50
@@ -127,7 +126,6 @@ export default function StaffLayout() {
           </div>
         </aside>
 
-        {/* Page content */}
         <div className="flex-1 min-w-0">
           <div className="max-w-6xl mx-auto p-4 sm:p-6">
             <Outlet />

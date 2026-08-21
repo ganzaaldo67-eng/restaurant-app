@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -16,6 +17,24 @@ export default function Login() {
     setLoading(true)
     try {
       await signIn(email, password)
+
+      // Check profile approval status
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Login failed')
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, status')
+        .eq('id', user.id)
+        .single()
+
+      if (profileError) throw profileError
+
+      if (!profile || profile.status !== 'active' || profile.role === 'pending') {
+        await supabase.auth.signOut()
+        throw new Error('Your account is waiting for admin/manager approval.')
+      }
+
       navigate('/staff')
     } catch (err) {
       setError(err.message || 'Login failed')
@@ -71,7 +90,14 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-zinc-500 mt-6">
+        <p className="text-center text-sm text-zinc-400 mt-4">
+          New staff?{' '}
+          <Link to="/register" className="text-emerald-400 underline hover:text-emerald-300">
+            Create staff account
+          </Link>
+        </p>
+
+        <p className="text-center text-sm text-zinc-500 mt-4">
           <a href="/order" className="underline hover:text-white">← Customer ordering page</a>
         </p>
       </div>
