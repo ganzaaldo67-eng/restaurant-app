@@ -59,8 +59,10 @@ export default function Team() {
             <button
               key={k}
               onClick={() => setFilter(k)}
-              className={`px-3 py-1.5 rounded-full text-xs border ${
-                filter === k ? 'bg-white text-black border-white' : 'border-zinc-700 text-zinc-400'
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
+                filter === k
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'border-zinc-700 text-zinc-400 hover:border-blue-500 hover:text-blue-400'
               }`}
             >
               {label}
@@ -125,15 +127,20 @@ export default function Team() {
                 </label>
 
                 <button
-                  onClick={() => updateStaff(s.id, { status: 'active', role: s.role === 'pending' ? 'waiter' : s.role })}
-                  className="px-3 py-2 rounded-lg bg-emerald-700 text-sm font-medium"
+                  onClick={() =>
+                    updateStaff(s.id, {
+                      status: 'active',
+                      role: s.role === 'pending' ? 'waiter' : s.role,
+                    })
+                  }
+                  className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition"
                 >
                   Activate
                 </button>
 
                 <button
                   onClick={() => updateStaff(s.id, { status: 'disabled' })}
-                  className="px-3 py-2 rounded-lg border border-zinc-700 text-sm"
+                  className="px-3 py-2 rounded-lg border border-zinc-700 text-sm hover:border-zinc-500"
                 >
                   Disable
                 </button>
