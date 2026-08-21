@@ -216,7 +216,7 @@ export default function Register() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 rounded-xl bg-white text-black font-bold disabled:opacity-50"
+          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold disabled:opacity-50 transition"
         >
           {loading ? 'Creating account...' : 'Create staff account'}
         </button>

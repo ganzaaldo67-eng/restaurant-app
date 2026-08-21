@@ -135,7 +135,7 @@ export default function MenuManagement() {
         />
         <button
           onClick={openAdd}
-          className="px-4 py-2 rounded-lg bg-white text-black text-sm font-medium"
+          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition"
         >
           + Add dish
         </button>
@@ -187,7 +187,6 @@ export default function MenuManagement() {
         </div>
       )}
 
-      {/* Modal */}
       {modal && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-zinc-900 rounded-xl w-full max-w-md p-5 border border-zinc-800 max-h-[90vh] overflow-y-auto">
@@ -227,7 +226,6 @@ export default function MenuManagement() {
                 </div>
               </div>
 
-              {/* Description */}
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Description</label>
                 <textarea
@@ -239,16 +237,15 @@ export default function MenuManagement() {
                 />
               </div>
 
-              {/* Image upload */}
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Dish image</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => uploadImage(e.target.files?.[0])}
-                  className="w-full text-sm text-zinc-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-green-700 file:text-white"
+                  className="w-full text-sm text-zinc-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white"
                 />
-                {uploading && <p className="text-xs text-green-400 mt-1">Uploading...</p>}
+                {uploading && <p className="text-xs text-blue-400 mt-1">Uploading...</p>}
               </div>
 
               <div>
@@ -291,7 +288,7 @@ export default function MenuManagement() {
               <button
                 onClick={save}
                 disabled={uploading}
-                className="px-4 py-2 rounded-lg bg-white text-black text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50 transition"
               >
                 Save
               </button>
