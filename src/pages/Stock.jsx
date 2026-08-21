@@ -56,10 +56,10 @@ export default function Stock() {
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
                 filter === key
-                  ? 'bg-white text-black border-white'
-                  : 'border-zinc-700 text-zinc-400'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'border-zinc-700 text-zinc-400 hover:border-blue-500 hover:text-blue-400'
               }`}
             >
               {label}
