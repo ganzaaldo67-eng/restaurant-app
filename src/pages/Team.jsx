@@ -3,13 +3,16 @@ import { supabase } from '../lib/supabase'
 
 const ROLES = [
   'pending',
+  'admin',
+  'manager',
+  'operations_manager',
+  'room_manager',
+  'reception',
+  'accounts',
   'waiter',
   'kitchen',
-  'manager',
-  'admin',
   'gatekeeper',
   'cleaner',
-  'room_manager',
 ]
 
 export default function Team() {
@@ -96,8 +99,12 @@ export default function Team() {
                     Emergency: {s.emergency_name || '—'} ({s.emergency_phone || '—'})
                   </div>
                   <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                    <span className="px-2 py-0.5 rounded-full bg-zinc-800 capitalize">role: {s.role}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-zinc-800 capitalize">status: {s.status}</span>
+                    <span className="px-2 py-0.5 rounded-full bg-zinc-800 capitalize">
+                      role: {(s.role || '').replaceAll('_', ' ')}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-zinc-800 capitalize">
+                      status: {s.status}
+                    </span>
                   </div>
                 </div>
 
@@ -107,7 +114,9 @@ export default function Team() {
                       <img src={s.id_card_url} alt="ID" className="w-full h-full object-cover" />
                     </a>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs text-zinc-500">No ID</div>
+                    <div className="w-full h-full flex items-center justify-center text-xs text-zinc-500">
+                      No ID
+                    </div>
                   )}
                 </div>
               </div>
@@ -121,7 +130,9 @@ export default function Team() {
                     onChange={(e) => updateStaff(s.id, { role: e.target.value })}
                   >
                     {ROLES.map((r) => (
-                      <option key={r} value={r}>{r}</option>
+                      <option key={r} value={r}>
+                        {r.replaceAll('_', ' ')}
+                      </option>
                     ))}
                   </select>
                 </label>
