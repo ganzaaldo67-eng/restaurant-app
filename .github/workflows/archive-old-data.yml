@@ -2,25 +2,28 @@ name: Archive Old Data
 
 on:
   schedule:
-    # Runs on the 1st of every month at 04:00 UTC
-    - cron: '0 4 1 * *'
-  workflow_dispatch: # Allows manual runs from the Actions tab
+    - cron: '0 4 1 * *'   # 1st of every month at 04:00 UTC
+  workflow_dispatch:
 
 jobs:
   archive:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required to commit & push archive files
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Required by latest @supabase/supabase-js
-          cache: 'npm'
+          node-version: '22'
+          check-latest: true        # force latest Node 22
+          # cache: 'npm'            # temporarily disabled to avoid cache issues
+
+      - name: Verify Node version
+        run: node --version
 
       - name: Install dependencies
         run: |
