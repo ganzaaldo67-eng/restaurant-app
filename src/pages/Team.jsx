@@ -8,7 +8,7 @@ const ROLES = [
   'operations_manager',
   'room_manager',
   'reception',
-  'accounts',
+  'accountant',
   'waiter',
   'kitchen',
   'gatekeeper',
