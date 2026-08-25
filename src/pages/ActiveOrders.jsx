@@ -29,7 +29,7 @@ function canManageOrders(role) {
     'admin',
     'manager',
     'operations_manager',
-    'accounts',
+    'accountant',
     'waiter',
     'reception',
     'room_manager',
@@ -46,7 +46,7 @@ function canUpdateDrinks(role) {
     'admin',
     'manager',
     'operations_manager',
-    'accounts',
+    'accountant',
     'reception',
   ].includes(role)
 }

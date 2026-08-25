@@ -11,7 +11,7 @@ const navItems = [
   {
     to: '/staff/accounts',
     label: 'Accounts',
-    roles: ['admin', 'manager', 'accounts', 'operations_manager'],
+    roles: ['admin', 'manager', 'accountant', 'operations_manager'],
     icon: '💰',
   },
   { to: '/staff/take-order', label: 'Take Order', icon: '📝' },
