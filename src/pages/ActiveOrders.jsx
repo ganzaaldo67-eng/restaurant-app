@@ -158,7 +158,7 @@ export default function ActiveOrders() {
     const order = orders.find((o) => o.id === orderId)
     const items = order?.order_items || []
 
-    const result = await restoreStockFromOrderItems(items)
+    const result = await restoreStockFromOrderItems(items, orderId)
     if (!result?.ok) {
       alert('Could not restore stock: ' + (result?.message || 'Unknown error'))
       return
@@ -212,7 +212,6 @@ export default function ActiveOrders() {
 
         const foodStatus = order.food_status || 'pending'
         const drinksStatus = order.drinks_status || 'pending'
-
         const visibleItems = role === 'kitchen' ? foodItems : allItems
 
         return (
@@ -231,7 +230,11 @@ export default function ActiveOrders() {
                   {new Date(order.created_at).toLocaleString()}
                 </div>
               </div>
-              <span className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize border ${pill[order.status] || pill.pending}`}>
+              <span
+                className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize border ${
+                  pill[order.status] || pill.pending
+                }`}
+              >
                 {order.status}
               </span>
             </div>
@@ -347,6 +350,12 @@ export default function ActiveOrders() {
 
             {canManageOrders(role) && (
               <div className="mt-3 flex justify-end gap-4">
+                <button
+                  onClick={() => navigate(`/staff/receipt/${order.id}`)}
+                  className="text-xs text-blue-400 hover:underline"
+                >
+                  Receipt
+                </button>
                 <button
                   onClick={() => navigate(`/staff/take-order?table=${order.table_number}`)}
                   className="text-xs text-emerald-400 hover:underline"

@@ -216,7 +216,7 @@ export default function CustomerOrder() {
       if (itemsError) throw itemsError
 
       // Reduce stock after successful order
-      await reduceStock(cart)
+      await reduceStock(cart, orderId)
 
       setOrderTotal(newTotal)
       setSuccess(true)

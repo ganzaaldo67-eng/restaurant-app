@@ -4,9 +4,16 @@ import { useAuth } from '../context/AuthContext'
 
 const navItems = [
   { to: '/staff', label: 'Dashboard', end: true, icon: '📊' },
+  { to: '/staff/profile', label: 'My Profile', icon: '👤' },
   { to: '/staff/menu', label: 'Menu', roles: ['admin', 'manager'], icon: '🍽️' },
   { to: '/staff/stock', label: 'Stock', roles: ['admin', 'manager'], icon: '📦' },
   { to: '/staff/team', label: 'Team', roles: ['admin', 'manager'], icon: '👥' },
+  {
+    to: '/staff/accounts',
+    label: 'Accounts',
+    roles: ['admin', 'manager', 'accounts', 'operations_manager'],
+    icon: '💰',
+  },
   { to: '/staff/take-order', label: 'Take Order', icon: '📝' },
   { to: '/staff/active', label: 'Active Orders', icon: '🔥' },
   { to: '/staff/history', label: 'History', icon: '📜' },
@@ -28,7 +35,6 @@ export default function StaffLayout() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      {/* Mobile top bar */}
       <div className="md:hidden sticky top-0 z-40 bg-green-950 border-b border-green-900 px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => setSidebarOpen(true)}
@@ -65,7 +71,9 @@ export default function StaffLayout() {
         >
           <div className="p-5 border-b border-green-900 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center text-xl">🌿</div>
+              <div className="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center text-xl">
+                🌿
+              </div>
               <div>
                 <div className="font-bold text-lg leading-tight">LA VERDURE</div>
                 <div className="text-xs text-green-300">Staff Panel</div>
@@ -104,8 +112,12 @@ export default function StaffLayout() {
 
           <div className="p-4 border-t border-green-900 space-y-3">
             <div className="text-sm">
-              <div className="font-medium truncate">{profile?.full_name || profile?.email}</div>
-              <div className="text-xs text-green-400 capitalize">{role}</div>
+              <div className="font-medium truncate">
+                {profile?.full_name || profile?.email}
+              </div>
+              <div className="text-xs text-green-400 capitalize">
+                {(role || '').replaceAll('_', ' ')}
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { validateStock, reduceStock } from '../lib/stock'
 
 export default function TakeOrder() {
   const { user } = useAuth()
@@ -14,20 +15,20 @@ export default function TakeOrder() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [openOrder, setOpenOrder] = useState(null) // existing unpaid order for this table
+  const [openOrder, setOpenOrder] = useState(null)
 
   useEffect(() => {
     supabase
       .from('menu_items')
       .select('*')
       .order('category')
+      .order('name')
       .then(({ data }) => {
         setMenu(data || [])
         setLoading(false)
       })
   }, [])
 
-  // When table number changes, check for open order
   useEffect(() => {
     const tableNum = parseInt(table)
     if (!tableNum || tableNum < 1) {
@@ -53,14 +54,25 @@ export default function TakeOrder() {
       }
     }
     checkOpenOrder()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [table])
 
   function addToCart(item) {
+    if (item.track_stock && (item.stock_qty ?? 0) <= 0) return
+
     setCart((prev) => {
       const existing = prev.find((c) => c.id === item.id)
+      const currentQty = existing ? existing.quantity : 0
+      if (item.track_stock && currentQty + 1 > (item.stock_qty ?? 0)) {
+        alert(`Only ${item.stock_qty} left of ${item.name}`)
+        return prev
+      }
       if (existing) {
-        return prev.map((c) => (c.id === item.id ? { ...c, quantity: c.quantity + 1 } : c))
+        return prev.map((c) =>
+          c.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
+        )
       }
       return [...prev, { ...item, quantity: 1 }]
     })
@@ -69,7 +81,15 @@ export default function TakeOrder() {
   function updateQty(id, delta) {
     setCart((prev) =>
       prev
-        .map((c) => (c.id === id ? { ...c, quantity: c.quantity + delta } : c))
+        .map((c) => {
+          if (c.id !== id) return c
+          const nextQty = c.quantity + delta
+          if (delta > 0 && c.track_stock && nextQty > (c.stock_qty ?? 0)) {
+            alert(`Only ${c.stock_qty} left of ${c.name}`)
+            return c
+          }
+          return { ...c, quantity: nextQty }
+        })
         .filter((c) => c.quantity > 0)
     )
   }
@@ -94,6 +114,13 @@ export default function TakeOrder() {
 
     setSubmitting(true)
     try {
+      const stockCheck = await validateStock(cart)
+      if (!stockCheck.ok) {
+        alert(stockCheck.message)
+        setSubmitting(false)
+        return
+      }
+
       const { data: existingOrders, error: findError } = await supabase
         .from('orders')
         .select('id, total, notes')
@@ -106,9 +133,9 @@ export default function TakeOrder() {
 
       let orderId
       let newTotal = total
+      const hadExisting = existingOrders && existingOrders.length > 0
 
-      if (existingOrders && existingOrders.length > 0) {
-        // ADD to existing open order
+      if (hadExisting) {
         orderId = existingOrders[0].id
         newTotal = Number(existingOrders[0].total) + total
 
@@ -127,7 +154,6 @@ export default function TakeOrder() {
 
         if (updateError) throw updateError
       } else {
-        // Create new order
         const { data: order, error } = await supabase
           .from('orders')
           .insert({
@@ -157,19 +183,25 @@ export default function TakeOrder() {
       const { error: itemsError } = await supabase.from('order_items').insert(items)
       if (itemsError) throw itemsError
 
+      await reduceStock(cart, orderId)
+
       setCart([])
       setNotes('')
       alert(
-        existingOrders?.length
+        hadExisting
           ? `Items added to Table ${tableNum}'s existing order`
           : `New order created for Table ${tableNum}`
       )
-      // refresh open order info
-      setOpenOrder((prev) =>
-        prev
-          ? { ...prev, total: newTotal }
-          : prev
-      )
+
+      setOpenOrder((prev) => (prev ? { ...prev, total: newTotal } : prev))
+
+      // refresh menu stock numbers
+      const { data: fresh } = await supabase
+        .from('menu_items')
+        .select('*')
+        .order('category')
+        .order('name')
+      setMenu(fresh || [])
     } catch (err) {
       alert(err.message)
     } finally {
@@ -200,7 +232,6 @@ export default function TakeOrder() {
         </div>
       </div>
 
-      {/* Banner: existing open order */}
       {openOrder && (
         <div className="rounded-xl border border-amber-600/50 bg-amber-950/40 p-4">
           <div className="font-semibold text-amber-300">
@@ -237,18 +268,36 @@ export default function TakeOrder() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {filtered.map((item) => {
             const inCart = cart.find((c) => c.id === item.id)
+            const outOfStock = item.track_stock && (item.stock_qty ?? 0) <= 0
+            const lowStock =
+              item.track_stock &&
+              (item.stock_qty ?? 0) > 0 &&
+              (item.stock_qty ?? 0) <= (item.low_stock_threshold ?? 5)
+
             return (
               <button
                 key={item.id}
+                disabled={outOfStock}
                 onClick={() => addToCart(item)}
                 className={`text-left p-3 rounded-xl border ${
-                  inCart ? 'border-white bg-zinc-800' : 'border-zinc-800 bg-zinc-900'
+                  outOfStock
+                    ? 'opacity-50 cursor-not-allowed border-zinc-800 bg-zinc-900'
+                    : inCart
+                      ? 'border-white bg-zinc-800'
+                      : 'border-zinc-800 bg-zinc-900'
                 }`}
               >
                 <div className="text-xs text-zinc-400 mb-1">{item.category}</div>
                 <div className="font-medium text-sm">{item.name}</div>
                 <div className="text-sm mt-1">RWF {Number(item.price).toLocaleString()}</div>
-                {inCart && <div className="mt-1 text-xs font-medium">×{inCart.quantity}</div>}
+                {outOfStock ? (
+                  <div className="mt-1 text-xs text-red-400 font-medium">Out of stock</div>
+                ) : lowStock ? (
+                  <div className="mt-1 text-xs text-amber-400">Only {item.stock_qty} left</div>
+                ) : null}
+                {inCart && !outOfStock && (
+                  <div className="mt-1 text-xs font-medium">×{inCart.quantity}</div>
+                )}
               </button>
             )
           })}
@@ -258,9 +307,7 @@ export default function TakeOrder() {
       {cart.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="font-medium">
-              {openOrder ? 'Items to add' : 'New order'}
-            </h3>
+            <h3 className="font-medium">{openOrder ? 'Items to add' : 'New order'}</h3>
             <span className="text-lg font-semibold">RWF {total.toLocaleString()}</span>
           </div>
           <div className="space-y-2 mb-3">
@@ -268,9 +315,19 @@ export default function TakeOrder() {
               <div key={c.id} className="flex items-center justify-between text-sm">
                 <span>{c.name}</span>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => updateQty(c.id, -1)} className="w-6 h-6 border border-zinc-700 rounded">−</button>
+                  <button
+                    onClick={() => updateQty(c.id, -1)}
+                    className="w-6 h-6 border border-zinc-700 rounded"
+                  >
+                    −
+                  </button>
                   <span>{c.quantity}</span>
-                  <button onClick={() => updateQty(c.id, 1)} className="w-6 h-6 border border-zinc-700 rounded">+</button>
+                  <button
+                    onClick={() => updateQty(c.id, 1)}
+                    className="w-6 h-6 border border-zinc-700 rounded"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
             ))}
@@ -283,13 +340,16 @@ export default function TakeOrder() {
             className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-sm mb-3 text-white"
           />
           <div className="flex gap-2 justify-end">
-            <button onClick={() => setCart([])} className="px-4 py-2 rounded-lg border border-zinc-700 text-sm">
+            <button
+              onClick={() => setCart([])}
+              className="px-4 py-2 rounded-lg border border-zinc-700 text-sm"
+            >
               Clear
             </button>
             <button
               onClick={placeOrder}
               disabled={submitting}
-              className="px-4 py-2 rounded-lg bg-white text-black text-sm font-medium disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50"
             >
               {submitting
                 ? 'Saving...'

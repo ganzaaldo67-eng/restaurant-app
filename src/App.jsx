@@ -11,6 +11,9 @@ import ActiveOrders from './pages/ActiveOrders'
 import OrderHistory from './pages/OrderHistory'
 import Stock from './pages/Stock'
 import Team from './pages/Team'
+import Profile from './pages/Profile'
+import Accounts from './pages/Accounts'
+import Receipt from './pages/Receipt'
 
 function ProtectedRoute({ children, roles }) {
   const { user, profile, loading } = useAuth()
@@ -25,7 +28,6 @@ function ProtectedRoute({ children, roles }) {
 
   if (!user) return <Navigate to="/login" replace />
 
-  // Block accounts waiting for approval
   if (profile && (profile.status !== 'active' || profile.role === 'pending')) {
     return <Navigate to="/login" replace />
   }
@@ -54,6 +56,7 @@ export default function App() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="profile" element={<Profile />} />
         <Route
           path="menu"
           element={
@@ -78,6 +81,17 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="accounts"
+          element={
+            <ProtectedRoute
+              roles={['admin', 'manager', 'accounts', 'operations_manager']}
+            >
+              <Accounts />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="receipt/:id" element={<Receipt />} />
         <Route path="take-order" element={<TakeOrder />} />
         <Route path="active" element={<ActiveOrders />} />
         <Route path="history" element={<OrderHistory />} />

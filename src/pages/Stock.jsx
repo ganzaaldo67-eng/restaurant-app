@@ -3,9 +3,11 @@ import { supabase } from '../lib/supabase'
 
 export default function Stock() {
   const [items, setItems] = useState([])
+  const [movements, setMovements] = useState([])
   const [loading, setLoading] = useState(true)
   const [savingId, setSavingId] = useState(null)
-  const [filter, setFilter] = useState('tracked') // tracked | all | low | out
+  const [filter, setFilter] = useState('tracked')
+  const [movementSearch, setMovementSearch] = useState('')
 
   useEffect(() => {
     load()
@@ -13,23 +15,74 @@ export default function Stock() {
 
   async function load() {
     setLoading(true)
+
     const { data, error } = await supabase
       .from('menu_items')
       .select('*')
       .order('category')
       .order('name')
+
     if (error) alert(error.message)
     setItems(data || [])
+
+    // movements + staff name from profiles
+    const { data: moves } = await supabase
+      .from('stock_movements')
+      .select('*, profiles:created_by (full_name, email)')
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    setMovements(moves || [])
     setLoading(false)
   }
 
-  async function updateItem(id, patch) {
+  async function logManualChange(item, oldQty, newQty) {
+    const diff = newQty - oldQty
+    if (diff === 0) return
+
+    try {
+      const { data: userData } = await supabase.auth.getUser()
+      await supabase.from('stock_movements').insert({
+        menu_item_id: item.id,
+        item_name: item.name,
+        change_qty: diff,
+        reason: 'manual',
+        created_by: userData?.user?.id || null,
+        note: `Manual adjust ${oldQty} → ${newQty}`,
+      })
+    } catch (e) {
+      console.error('manual log error', e)
+    }
+  }
+
+  async function updateItem(id, patch, itemForLog = null, oldQty = null) {
     setSavingId(id)
     const { error } = await supabase.from('menu_items').update(patch).eq('id', id)
-    if (error) alert(error.message)
-    else {
-      setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)))
+    if (error) {
+      alert(error.message)
+      setSavingId(null)
+      return
     }
+
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)))
+
+    // log manual stock qty change
+    if (
+      itemForLog &&
+      patch.stock_qty !== undefined &&
+      oldQty !== null &&
+      Number(patch.stock_qty) !== Number(oldQty)
+    ) {
+      await logManualChange(itemForLog, Number(oldQty), Number(patch.stock_qty))
+      // refresh movements
+      const { data: moves } = await supabase
+        .from('stock_movements')
+        .select('*, profiles:created_by (full_name, email)')
+        .order('created_at', { ascending: false })
+        .limit(50)
+      setMovements(moves || [])
+    }
+
     setSavingId(null)
   }
 
@@ -41,6 +94,18 @@ export default function Stock() {
     if (filter === 'out') return i.track_stock && i.stock_qty <= 0
     return true
   })
+
+  const filteredMovements = movements.filter((m) => {
+    const q = movementSearch.trim().toLowerCase()
+    if (!q) return true
+    return (m.item_name || '').toLowerCase().includes(q)
+  })
+
+  function staffLabel(m) {
+    const p = m.profiles
+    if (!p) return 'System / customer'
+    return p.full_name || p.email || 'Staff'
+  }
 
   return (
     <div className="space-y-4 text-white">
@@ -138,7 +203,9 @@ export default function Stock() {
                       key={`qty-${item.id}-${qty}`}
                       onBlur={(e) => {
                         const v = Math.max(0, parseInt(e.target.value) || 0)
-                        if (v !== qty) updateItem(item.id, { stock_qty: v })
+                        if (v !== qty) {
+                          updateItem(item.id, { stock_qty: v }, item, qty)
+                        }
                       }}
                       className="mt-1 block w-24 px-2 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-white text-sm"
                     />
@@ -153,7 +220,9 @@ export default function Stock() {
                       key={`th-${item.id}-${threshold}`}
                       onBlur={(e) => {
                         const v = Math.max(0, parseInt(e.target.value) || 0)
-                        if (v !== threshold) updateItem(item.id, { low_stock_threshold: v })
+                        if (v !== threshold) {
+                          updateItem(item.id, { low_stock_threshold: v })
+                        }
                       }}
                       className="mt-1 block w-24 px-2 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-white text-sm"
                     />
@@ -168,6 +237,57 @@ export default function Stock() {
           })}
         </div>
       )}
+
+      {/* History */}
+      <div className="mt-8 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-lg font-bold">Recent stock movements</h3>
+          <input
+            type="search"
+            value={movementSearch}
+            onChange={(e) => setMovementSearch(e.target.value)}
+            placeholder="Filter by item name..."
+            className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 text-sm w-full sm:w-64"
+          />
+        </div>
+
+        {filteredMovements.length === 0 ? (
+          <p className="text-zinc-500 text-sm">No movements found.</p>
+        ) : (
+          <div className="space-y-2">
+            {filteredMovements.map((m) => (
+              <div
+                key={m.id}
+                className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-sm"
+              >
+                <div>
+                  <span className="font-medium">{m.item_name || 'Item'}</span>
+                  <span className="text-zinc-500 ml-2 capitalize">{m.reason}</span>
+                  <div className="text-xs text-zinc-500 mt-0.5">
+                    by {staffLabel(m)}
+                    {m.note ? ` · ${m.note}` : ''}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span
+                    className={
+                      m.change_qty < 0
+                        ? 'text-red-400 font-medium'
+                        : 'text-emerald-400 font-medium'
+                    }
+                  >
+                    {m.change_qty > 0 ? '+' : ''}
+                    {m.change_qty}
+                  </span>
+                  <span className="text-xs text-zinc-500">
+                    {new Date(m.created_at).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
