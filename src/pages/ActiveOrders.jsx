@@ -24,6 +24,33 @@ function isDrinkItem(item) {
   return drinkWords.some((w) => name.includes(w))
 }
 
+function canManageOrders(role) {
+  return [
+    'admin',
+    'manager',
+    'operations_manager',
+    'accounts',
+    'waiter',
+    'reception',
+    'room_manager',
+  ].includes(role)
+}
+
+function canUpdateFood(role) {
+  return ['kitchen', 'admin', 'manager', 'operations_manager'].includes(role)
+}
+
+function canUpdateDrinks(role) {
+  return [
+    'waiter',
+    'admin',
+    'manager',
+    'operations_manager',
+    'accounts',
+    'reception',
+  ].includes(role)
+}
+
 export default function ActiveOrders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -131,7 +158,6 @@ export default function ActiveOrders() {
     const order = orders.find((o) => o.id === orderId)
     const items = order?.order_items || []
 
-    // Restore stock first
     const result = await restoreStockFromOrderItems(items)
     if (!result?.ok) {
       alert('Could not restore stock: ' + (result?.message || 'Unknown error'))
@@ -187,8 +213,7 @@ export default function ActiveOrders() {
         const foodStatus = order.food_status || 'pending'
         const drinksStatus = order.drinks_status || 'pending'
 
-        const visibleItems =
-          role === 'kitchen' ? foodItems : role === 'waiter' ? allItems : allItems
+        const visibleItems = role === 'kitchen' ? foodItems : allItems
 
         return (
           <div key={order.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 sm:p-5">
@@ -242,7 +267,7 @@ export default function ActiveOrders() {
               <p className="text-xs text-zinc-500 italic mb-3">Note: {order.notes}</p>
             )}
 
-            {hasFood && (role === 'kitchen' || role === 'admin' || role === 'manager' || role === 'waiter') && (
+            {hasFood && (canUpdateFood(role) || role === 'waiter' || canManageOrders(role)) && (
               <div className="mb-3">
                 <div className="text-xs text-orange-300 font-medium mb-1.5">
                   🍽️ Food status: <span className="capitalize">{foodStatus}</span>
@@ -250,7 +275,7 @@ export default function ActiveOrders() {
                 <div className="flex flex-wrap gap-1.5">
                   {FOOD_FLOW.map((s) => {
                     const isActive = s === foodStatus
-                    const canClick = role === 'kitchen' || role === 'admin' || role === 'manager'
+                    const canClick = canUpdateFood(role)
                     return (
                       <button
                         key={s}
@@ -270,7 +295,7 @@ export default function ActiveOrders() {
               </div>
             )}
 
-            {hasDrinks && (role === 'waiter' || role === 'admin' || role === 'manager' || role === 'kitchen') && (
+            {hasDrinks && (canUpdateDrinks(role) || role === 'kitchen' || canManageOrders(role)) && (
               <div className="mb-3">
                 <div className="text-xs text-sky-300 font-medium mb-1.5">
                   🥤 Drinks status: <span className="capitalize">{drinksStatus}</span>
@@ -278,7 +303,7 @@ export default function ActiveOrders() {
                 <div className="flex flex-wrap gap-1.5">
                   {DRINKS_FLOW.map((s) => {
                     const isActive = s === drinksStatus
-                    const canClick = role === 'waiter' || role === 'admin' || role === 'manager'
+                    const canClick = canUpdateDrinks(role)
                     return (
                       <button
                         key={s}
@@ -320,7 +345,7 @@ export default function ActiveOrders() {
               </div>
             </div>
 
-            {(role === 'admin' || role === 'manager' || role === 'waiter') && (
+            {canManageOrders(role) && (
               <div className="mt-3 flex justify-end gap-4">
                 <button
                   onClick={() => navigate(`/staff/take-order?table=${order.table_number}`)}
